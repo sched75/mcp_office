@@ -58,7 +58,7 @@ class TestValidateFilePath:
         """Test validation fails with invalid extension."""
         test_file = tmp_path / "test.txt"
         test_file.touch()
-        with pytest.raises(InvalidParameterError, match="must have one of these extensions"):
+        with pytest.raises(InvalidParameterError, match="File extension must be one of"):
             validate_file_path(test_file, must_exist=True, extensions=[".docx", ".doc"])
 
     def test_validate_file_path_empty_string(self) -> None:
@@ -114,7 +114,7 @@ class TestValidateRangeAddress:
 
     def test_validate_range_address_invalid_format(self) -> None:
         """Test validation fails with invalid format."""
-        with pytest.raises(InvalidParameterError, match="Invalid range address"):
+        with pytest.raises(InvalidParameterError, match="Invalid range format"):
             validate_range_address("A1")
         with pytest.raises(InvalidParameterError):
             validate_range_address("A1:B")
@@ -160,29 +160,34 @@ class TestValidatePositiveNumber:
 
     def test_validate_positive_number_valid_int(self) -> None:
         """Test validation with valid positive integers."""
-        assert validate_positive_number(1, "test") == 1
-        assert validate_positive_number(100, "test") == 100
+        assert validate_positive_number("test", 1) == 1
+        assert validate_positive_number("test", 100) == 100
 
     def test_validate_positive_number_valid_float(self) -> None:
         """Test validation with valid positive floats."""
-        assert validate_positive_number(0.1, "test") == 0.1
-        assert validate_positive_number(99.99, "test") == 99.99
+        assert validate_positive_number("test", 0.1) == 0.1
+        assert validate_positive_number("test", 99.99) == 99.99
 
     def test_validate_positive_number_zero_allowed(self) -> None:
         """Test validation with zero when allowed."""
-        assert validate_positive_number(0, "test", allow_zero=True) == 0
+        assert validate_positive_number("test", 0, allow_zero=True) == 0
 
     def test_validate_positive_number_zero_not_allowed(self) -> None:
         """Test validation fails with zero when not allowed."""
         with pytest.raises(InvalidParameterError, match="must be positive"):
-            validate_positive_number(0, "test", allow_zero=False)
+            validate_positive_number("test", 0, allow_zero=False)
 
     def test_validate_positive_number_negative(self) -> None:
         """Test validation fails with negative number."""
         with pytest.raises(InvalidParameterError, match="must be positive"):
-            validate_positive_number(-1, "test")
+            validate_positive_number("test", -1)
         with pytest.raises(InvalidParameterError):
-            validate_positive_number(-0.1, "test")
+            validate_positive_number("test", -0.1)
+
+    def test_validate_positive_number_not_a_number(self) -> None:
+        """Test validation fails with non-number value."""
+        with pytest.raises(InvalidParameterError, match="must be a number"):
+            validate_positive_number("test", "not_a_number")  # type: ignore
 
 
 class TestValidatePercentage:
@@ -190,19 +195,24 @@ class TestValidatePercentage:
 
     def test_validate_percentage_valid(self) -> None:
         """Test validation with valid percentages."""
-        assert validate_percentage(0) == 0
-        assert validate_percentage(50) == 50
-        assert validate_percentage(100) == 100
+        assert validate_percentage("test", 0) == 0
+        assert validate_percentage("test", 50) == 50
+        assert validate_percentage("test", 100) == 100
 
     def test_validate_percentage_negative(self) -> None:
         """Test validation fails with negative percentage."""
         with pytest.raises(InvalidParameterError, match="between 0 and 100"):
-            validate_percentage(-1)
+            validate_percentage("test", -1)
 
     def test_validate_percentage_too_large(self) -> None:
         """Test validation fails with percentage > 100."""
         with pytest.raises(InvalidParameterError, match="between 0 and 100"):
-            validate_percentage(101)
+            validate_percentage("test", 101)
+
+    def test_validate_percentage_not_a_number(self) -> None:
+        """Test validation fails with non-number value."""
+        with pytest.raises(InvalidParameterError, match="must be a number"):
+            validate_percentage("test", "not_a_number")  # type: ignore
 
 
 class TestValidateStringNotEmpty:
@@ -210,18 +220,23 @@ class TestValidateStringNotEmpty:
 
     def test_validate_string_not_empty_valid(self) -> None:
         """Test validation with non-empty string."""
-        assert validate_string_not_empty("test", "param") == "test"
-        assert validate_string_not_empty("  spaces  ", "param") == "  spaces  "
+        assert validate_string_not_empty("param", "test") == "test"
+        assert validate_string_not_empty("param", "  spaces  ") == "  spaces  "
 
     def test_validate_string_not_empty_empty(self) -> None:
         """Test validation fails with empty string."""
         with pytest.raises(InvalidParameterError, match="cannot be empty"):
-            validate_string_not_empty("", "param")
+            validate_string_not_empty("param", "")
 
     def test_validate_string_not_empty_whitespace_only(self) -> None:
         """Test validation fails with whitespace-only string."""
         with pytest.raises(InvalidParameterError, match="cannot be empty"):
-            validate_string_not_empty("   ", "param")
+            validate_string_not_empty("param", "   ")
+
+    def test_validate_string_not_empty_not_a_string(self) -> None:
+        """Test validation fails with non-string value."""
+        with pytest.raises(InvalidParameterError, match="must be a string"):
+            validate_string_not_empty("param", 123)  # type: ignore
 
 
 class TestValidateDimensions:
@@ -229,29 +244,53 @@ class TestValidateDimensions:
 
     def test_validate_dimensions_valid(self) -> None:
         """Test validation with valid dimensions."""
-        width, height = validate_dimensions(100, 200)
-        assert width == 100
-        assert height == 200
+        result = validate_dimensions(width=100, height=200)
+        assert result["width"] == 100
+        assert result["height"] == 200
 
     def test_validate_dimensions_optional_height(self) -> None:
         """Test validation with optional height."""
-        width, height = validate_dimensions(100, None)
-        assert width == 100
-        assert height is None
+        result = validate_dimensions(width=100)
+        assert result["width"] == 100
+        assert "height" not in result
 
     def test_validate_dimensions_invalid_width(self) -> None:
         """Test validation fails with invalid width."""
-        with pytest.raises(InvalidParameterError, match="Width must be positive"):
-            validate_dimensions(0, 100)
+        with pytest.raises(InvalidParameterError, match="must be positive"):
+            validate_dimensions(width=0)
         with pytest.raises(InvalidParameterError):
-            validate_dimensions(-1, 100)
+            validate_dimensions(width=-1)
 
     def test_validate_dimensions_invalid_height(self) -> None:
         """Test validation fails with invalid height."""
-        with pytest.raises(InvalidParameterError, match="Height must be positive"):
-            validate_dimensions(100, 0)
+        with pytest.raises(InvalidParameterError, match="must be positive"):
+            validate_dimensions(height=0)
         with pytest.raises(InvalidParameterError):
-            validate_dimensions(100, -1)
+            validate_dimensions(height=-1)
+
+    def test_validate_dimensions_with_rows_and_cols(self) -> None:
+        """Test validation with rows and columns."""
+        result = validate_dimensions(rows=3, cols=4)
+        assert result["rows"] == 3
+        assert result["cols"] == 4
+
+    def test_validate_dimensions_invalid_rows(self) -> None:
+        """Test validation fails with invalid rows."""
+        with pytest.raises(InvalidParameterError, match="must be a positive integer"):
+            validate_dimensions(rows=0)
+        with pytest.raises(InvalidParameterError):
+            validate_dimensions(rows=-1)
+        with pytest.raises(InvalidParameterError):
+            validate_dimensions(rows=3.5)  # type: ignore
+
+    def test_validate_dimensions_invalid_cols(self) -> None:
+        """Test validation fails with invalid columns."""
+        with pytest.raises(InvalidParameterError, match="must be a positive integer"):
+            validate_dimensions(cols=0)
+        with pytest.raises(InvalidParameterError):
+            validate_dimensions(cols=-1)
+        with pytest.raises(InvalidParameterError):
+            validate_dimensions(cols=2.5)  # type: ignore
 
 
 class TestValidateChoice:
@@ -260,17 +299,17 @@ class TestValidateChoice:
     def test_validate_choice_valid(self) -> None:
         """Test validation with valid choice."""
         choices = ["option1", "option2", "option3"]
-        assert validate_choice("option1", choices, "param") == "option1"
-        assert validate_choice("option2", choices, "param") == "option2"
+        assert validate_choice("param", "option1", choices) == "option1"
+        assert validate_choice("param", "option2", choices) == "option2"
 
     def test_validate_choice_invalid(self) -> None:
         """Test validation fails with invalid choice."""
         choices = ["option1", "option2", "option3"]
         with pytest.raises(InvalidParameterError, match="must be one of"):
-            validate_choice("invalid", choices, "param")
+            validate_choice("param", "invalid", choices)
 
     def test_validate_choice_case_sensitive(self) -> None:
         """Test validation is case sensitive by default."""
         choices = ["Option1", "Option2"]
         with pytest.raises(InvalidParameterError):
-            validate_choice("option1", choices, "param")
+            validate_choice("param", "option1", choices)

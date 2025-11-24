@@ -25,11 +25,11 @@ class TestOfficeAutomationError:
         error = OfficeAutomationError("Simple error message")
         assert str(error) == "Simple error message"
 
-    def test_message_with_params(self) -> None:
-        """Test exception with formatted message."""
-        error = OfficeAutomationError("Error with {param1} and {param2}", param1="value1", param2="value2")
-        assert "value1" in str(error)
-        assert "value2" in str(error)
+    def test_message_with_details(self) -> None:
+        """Test exception with message and details."""
+        error = OfficeAutomationError("Error message", "Additional details")
+        assert "Error message" in str(error)
+        assert "Additional details" in str(error)
 
     def test_can_be_raised(self) -> None:
         """Test exception can be raised."""
@@ -42,18 +42,18 @@ class TestCOMInitializationError:
 
     def test_with_application_name(self) -> None:
         """Test error with application name."""
-        error = COMInitializationError(application_name="Word")
+        error = COMInitializationError(app_type="Word")
         assert "Word" in str(error)
 
-    def test_with_reason(self) -> None:
-        """Test error with reason."""
-        error = COMInitializationError(application_name="Excel", reason="Not installed")
+    def test_with_details(self) -> None:
+        """Test error with details."""
+        error = COMInitializationError(app_type="Excel", details="Not installed")
         assert "Excel" in str(error)
         assert "Not installed" in str(error)
 
     def test_inheritance(self) -> None:
         """Test error inherits from OfficeAutomationError."""
-        error = COMInitializationError(application_name="PowerPoint")
+        error = COMInitializationError(app_type="PowerPoint")
         assert isinstance(error, OfficeAutomationError)
 
 
@@ -90,19 +90,19 @@ class TestInvalidParameterError:
 
     def test_with_parameter_and_reason(self) -> None:
         """Test error with parameter name and reason."""
-        error = InvalidParameterError(parameter_name="rows", reason="must be positive")
+        error = InvalidParameterError(param_name="rows", param_value=0, reason="must be positive")
         assert "rows" in str(error)
         assert "must be positive" in str(error)
 
     def test_with_value(self) -> None:
         """Test error with value."""
-        error = InvalidParameterError(parameter_name="color", reason="invalid", value="xyz")
+        error = InvalidParameterError(param_name="color", param_value="xyz", reason="invalid")
         assert "color" in str(error)
         assert "xyz" in str(error)
 
     def test_inheritance(self) -> None:
         """Test error inherits from OfficeAutomationError."""
-        error = InvalidParameterError(parameter_name="test", reason="test")
+        error = InvalidParameterError(param_name="test", param_value="bad", reason="test")
         assert isinstance(error, OfficeAutomationError)
 
 
@@ -112,18 +112,18 @@ class TestCOMOperationError:
     def test_with_operation_name(self) -> None:
         """Test error with operation name."""
         original_error = ValueError("Original error")
-        error = COMOperationError(operation_name="create_document", original_error=original_error)
+        error = COMOperationError(operation="create_document", com_error=original_error)
         assert "create_document" in str(error)
 
     def test_with_original_error(self) -> None:
         """Test error includes original error message."""
         original_error = ValueError("Original error message")
-        error = COMOperationError(operation_name="test", original_error=original_error)
+        error = COMOperationError(operation="test", com_error=original_error)
         assert "Original error message" in str(error)
 
     def test_inheritance(self) -> None:
         """Test error inherits from OfficeAutomationError."""
-        error = COMOperationError(operation_name="test", original_error=Exception())
+        error = COMOperationError(operation="test", com_error=Exception())
         assert isinstance(error, OfficeAutomationError)
 
 
@@ -163,13 +163,13 @@ class TestTemplateError:
 
     def test_with_template_name(self) -> None:
         """Test error with template name."""
-        error = TemplateError(template_name="MyTemplate", reason="not found")
+        error = TemplateError(template_path="MyTemplate", reason="not found")
         assert "MyTemplate" in str(error)
         assert "not found" in str(error)
 
     def test_inheritance(self) -> None:
         """Test error inherits from OfficeAutomationError."""
-        error = TemplateError(template_name="test", reason="test")
+        error = TemplateError(template_path="test", reason="test")
         assert isinstance(error, OfficeAutomationError)
 
 
@@ -193,13 +193,13 @@ class TestResourceCleanupError:
 
     def test_with_resource_name(self) -> None:
         """Test error with resource name."""
-        error = ResourceCleanupError(resource_name="COM Application", reason="failed to release")
+        error = ResourceCleanupError(resource="COM Application", details="failed to release")
         assert "COM Application" in str(error)
         assert "failed to release" in str(error)
 
     def test_inheritance(self) -> None:
         """Test error inherits from OfficeAutomationError."""
-        error = ResourceCleanupError(resource_name="test", reason="test")
+        error = ResourceCleanupError(resource="test", details="test")
         assert isinstance(error, OfficeAutomationError)
 
 
@@ -212,7 +212,7 @@ class TestExceptionChaining:
             try:
                 raise ValueError("Original error")
             except ValueError as e:
-                raise COMOperationError(operation_name="test", original_error=e) from e
+                raise COMOperationError(operation="test", com_error=e) from e
         except COMOperationError as error:
             assert error.__cause__ is not None
             assert isinstance(error.__cause__, ValueError)
@@ -220,7 +220,7 @@ class TestExceptionChaining:
     def test_exception_context_preserved(self) -> None:
         """Test exception context is preserved."""
         try:
-            raise InvalidParameterError(parameter_name="test", reason="invalid")
+            raise InvalidParameterError(param_name="test", param_value="bad", reason="invalid")
         except InvalidParameterError as error:
             assert isinstance(error, OfficeAutomationError)
             assert "test" in str(error)

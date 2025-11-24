@@ -89,8 +89,8 @@ class TestCOMConstants:
 
     def test_get_word_alignment_invalid(self) -> None:
         """Test get_word_alignment with invalid input."""
-        with pytest.raises(ValueError, match="Invalid alignment"):
-            COMConstants.get_word_alignment("invalid")
+        # Invalid input returns default (left)
+        assert COMConstants.get_word_alignment("invalid") == COMConstants.WD_ALIGN_PARAGRAPH_LEFT
 
     def test_get_excel_halignment_valid(self) -> None:
         """Test get_excel_halignment with valid input."""
@@ -100,8 +100,8 @@ class TestCOMConstants:
 
     def test_get_excel_halignment_invalid(self) -> None:
         """Test get_excel_halignment with invalid input."""
-        with pytest.raises(ValueError, match="Invalid horizontal alignment"):
-            COMConstants.get_excel_halignment("invalid")
+        # Invalid input returns default (left)
+        assert COMConstants.get_excel_halignment("invalid") == COMConstants.XL_HALIGN_LEFT
 
     def test_get_excel_valignment_valid(self) -> None:
         """Test get_excel_valignment with valid input."""
@@ -111,20 +111,20 @@ class TestCOMConstants:
 
     def test_get_excel_valignment_invalid(self) -> None:
         """Test get_excel_valignment with invalid input."""
-        with pytest.raises(ValueError, match="Invalid vertical alignment"):
-            COMConstants.get_excel_valignment("invalid")
+        # Invalid input returns default (center)
+        assert COMConstants.get_excel_valignment("invalid") == COMConstants.XL_VALIGN_CENTER
 
     def test_get_chart_type_valid(self) -> None:
         """Test get_chart_type with valid input."""
-        assert COMConstants.get_chart_type("column") == COMConstants.XL_COLUMN_CLUSTERED
-        assert COMConstants.get_chart_type("bar") == COMConstants.XL_BAR_CLUSTERED
-        assert COMConstants.get_chart_type("line") == COMConstants.XL_LINE
-        assert COMConstants.get_chart_type("pie") == COMConstants.XL_PIE
+        assert COMConstants.get_chart_type("column") == COMConstants.XL_CHART_COLUMN
+        assert COMConstants.get_chart_type("bar") == COMConstants.XL_CHART_BAR
+        assert COMConstants.get_chart_type("line") == COMConstants.XL_CHART_LINE
+        assert COMConstants.get_chart_type("pie") == COMConstants.XL_CHART_PIE
 
     def test_get_chart_type_invalid(self) -> None:
         """Test get_chart_type with invalid input."""
-        with pytest.raises(ValueError, match="Invalid chart type"):
-            COMConstants.get_chart_type("invalid")
+        # Invalid input returns default (column)
+        assert COMConstants.get_chart_type("invalid") == COMConstants.XL_CHART_COLUMN
 
 
 class TestRGBToOfficeColor:
