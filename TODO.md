@@ -508,3 +508,202 @@ office-mcp-server/
 - Sanitization des entrées
 - Gestion des permissions
 - Timeout pour opérations longues
+
+---
+
+## OUTLOOK (85 fonctionnalités) - ⏳ EN PLANIFICATION
+
+### Gestion des emails (12)
+- [ ] Créer un nouveau message
+- [ ] Envoyer un email
+- [ ] Répondre à un email
+- [ ] Répondre à tous
+- [ ] Transférer un email
+- [ ] Lire un email (récupérer objet, corps, expéditeur, destinataires)
+- [ ] Marquer comme lu/non lu
+- [ ] Marquer avec indicateur (flag)
+- [ ] Supprimer un email
+- [ ] Déplacer vers un dossier
+- [ ] Rechercher des emails (par expéditeur, objet, date, contenu)
+- [ ] Récupérer la liste des emails d'un dossier
+
+### Gestion des pièces jointes (5)
+- [ ] Ajouter une piêce jointe
+- [ ] Lister les piêces jointes d'un email
+- [ ] Télécharger/sauvegarder une piêce jointe
+- [ ] Supprimer une piêce jointe
+- [ ] Envoyer un email avec plusieurs pièces jointes
+
+### Formatage des emails (6)
+- [ ] Définir le format du message (HTML, texte brut, RTF)
+- [ ] Appliquer du formatage HTML (gras, italique, couleurs)
+- [ ] Insérer une signature
+- [ ] Insérer une image dans le corps
+- [ ] Définir l'importance (haute, normale, basse)
+- [ ] Définir la sensibilité (normale, personnelle, privée, confidentielle)
+
+### Gestion des dossiers (7)
+- [ ] Créer un nouveau dossier
+- [ ] Supprimer un dossier
+- [ ] Renommer un dossier
+- [ ] Déplacer un dossier
+- [ ] Lister les dossiers
+- [ ] Obtenir le nombre de messages dans un dossier
+- [ ] Obtenir le nombre de messages non lus
+
+### Gestion du calendrier (10)
+- [ ] Créer un rendez-vous
+- [ ] Modifier un rendez-vous
+- [ ] Supprimer un rendez-vous
+- [ ] Lire les détails d'un rendez-vous
+- [ ] Créer un évênement récurrent
+- [ ] Rechercher des rendez-vous (par date, objet)
+- [ ] Obtenir la liste des rendez-vous d'une période
+- [ ] Définir un rappel
+- [ ] Bloquer du temps (disponibilité)
+- [ ] Exporter un rendez-vous (.ics)
+
+### Gestion des réunions (8)
+- [ ] Créer une demande de réunion
+- [ ] Inviter des participants
+- [ ] Accepter une réunion
+- [ ] Refuser une réunion
+- [ ] Proposer un nouvel horaire
+- [ ] Annuler une réunion
+- [ ] Mettre à jour une réunion
+- [ ] Vérifier la disponibilité des participants
+
+### Gestion des contacts (9)
+- [ ] Créer un nouveau contact
+- [ ] Modifier un contact
+- [ ] Supprimer un contact
+- [ ] Rechercher un contact
+- [ ] Lister tous les contacts
+- [ ] Créer un groupe de contacts (liste de distribution)
+- [ ] Ajouter un contact Ã  un groupe
+- [ ] Exporter des contacts (.vcf)
+- [ ] Importer des contacts
+
+### Gestion des tâches (7)
+- [ ] Créer une nouvelle tâche
+- [ ] Modifier une tâche
+- [ ] Supprimer une tâche
+- [ ] Marquer une tâche comme terminée
+- [ ] Définir une priorité
+- [ ] Définir une date d'échéance
+- [ ] Lister les tâches (toutes, en cours, terminées)
+
+### Catégories et organisation (4)
+- [ ] Créer une catégorie
+- [ ] Appliquer une catégorie Ã  un élément
+- [ ] Lister les catégories
+- [ ] Filtrer par catégorie
+
+### Règles et automatisation (5)
+- [ ] Créer une rêgle de messagerie
+- [ ] Modifier une rêgle
+- [ ] Activer/désactiver une rêgle
+- [ ] Supprimer une rêgle
+- [ ] Lister toutes les rêgles
+
+### Signatures (3)
+- [ ] Créer une signature
+- [ ] Modifier une signature
+- [ ] Définir la signature par défaut
+
+### Comptes et configuration (4)
+- [ ] Lister les comptes configurés
+- [ ] Obtenir le compte par défaut
+- [ ] Envoyer depuis un compte spécifique
+- [ ] Vérifier l'état de la connexion
+
+### Fonctionnalités avancées (9)
+- [ ] Configurer une réponse automatique (absent du bureau)
+- [ ] Archiver des emails
+- [ ] Exporter vers PST
+- [ ] Importer depuis PST
+- [ ] Partager un calendrier
+- [ ] Partager un dossier
+- [ ] Définir des permissions sur un dossier
+- [ ] Recherche avancée avec critêres multiples
+- [ ] Gestion des brouillons (sauvegarder, récupérer)
+
+### Notifications et rappels (6)
+- [ ] Créer un rappel pour un email
+- [ ] Créer un rappel pour une tâche
+- [ ] Lire les rappels actifs
+- [ ] Reporter un rappel
+- [ ] Supprimer un rappel
+- [ ] Configurer les notifications
+
+---
+
+## STATISTIQUES GLOBALES MISES À JOUR
+
+### Vue d'ensemble
+- **Word**: 65 fonctionnalités âœ… COMPLET
+- **Excel**: 82 fonctionnalités âœ… COMPLET
+- **PowerPoint**: 63 fonctionnalités âœ… COMPLET
+- **Outlook**: 85 fonctionnalités ⏳ EN PLANIFICATION
+- **Total**: 295 fonctionnalités (210 complétées + 85 planifiées)
+
+### Progression
+- **Complété**: 210/295 (71.2%)
+- **En planification**: 85/295 (28.8%)
+
+---
+
+## PRIORITÃ‰S OUTLOOK
+
+### Phase 1 - Emails de base (19 tâches)
+- Gestion des emails (12)
+- Gestion des piêces jointes (5)
+- Comptes de base (2)
+
+### Phase 2 - Organisation (21 tâches)
+- Gestion des dossiers (7)
+- Catégories et organisation (4)
+- Signatures (3)
+- Gestion des brouillons et archivage (2)
+- Notifications de base (5)
+
+### Phase 3 - Calendrier et réunions (18 tâches)
+- Gestion du calendrier (10)
+- Gestion des réunions (8)
+
+### Phase 4 - Contacts et tâches (16 tâches)
+- Gestion des contacts (9)
+- Gestion des tâches (7)
+
+### Phase 5 - Fonctionnalités avancées (11 tâches)
+- Formatage des emails (6)
+- Rêgles et automatisation (5)
+
+---
+
+## ARCHITECTURE OUTLOOK
+
+### Nouveaux modules Ã  créer
+```
+office-mcp-server/
+â"œâ"€â"€ src/
+â"‚   â"œâ"€â"€ outlook/
+â"‚   â"‚   â"œâ"€â"€ __init__.py
+â"‚   â"‚   â"œâ"€â"€ outlook_service.py      # Service principal Outlook
+â"‚   â"‚   â"œâ"€â"€ mail.py                 # Gestion emails
+â"‚   â"‚   â"œâ"€â"€ calendar.py             # Gestion calendrier
+â"‚   â"‚   â"œâ"€â"€ contacts.py             # Gestion contacts
+â"‚   â"‚   â"œâ"€â"€ tasks.py                # Gestion tâches
+â"‚   â"‚   â"œâ"€â"€ folders.py              # Gestion dossiers
+â"‚   â"‚   â""â"€â"€ rules.py                # Gestion rêgles
+â"‚   â""â"€â"€ tests/
+â"‚       â""â"€â"€ test_outlook.py
+```
+
+### Spécificités COM Outlook
+- Outlook.Application (ProgID)
+- Namespace MAPI
+- Gestion des éléments (MailItem, AppointmentItem, ContactItem, TaskItem)
+- Collections (Folders, Items, Recipients)
+- Propriétés et méthodes spécifiques Outlook
+- Gestion des sessions et profils
