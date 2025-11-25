@@ -21,6 +21,7 @@ class ApplicationType(Enum):
     WORD = "Word.Application"
     EXCEL = "Excel.Application"
     POWERPOINT = "PowerPoint.Application"
+    OUTLOOK = "Outlook.Application"
 
 
 class DocumentFormat(Enum):
@@ -147,6 +148,87 @@ class TransitionType(Enum):
     RANDOM = auto()
 
 
+# Outlook-specific enumerations
+class OutlookItemType(Enum):
+    """Types d'éléments Outlook."""
+
+    MAIL = auto()
+    APPOINTMENT = auto()
+    CONTACT = auto()
+    TASK = auto()
+    MEETING = auto()
+    NOTE = auto()
+
+
+class EmailImportance(Enum):
+    """Niveaux d'importance email."""
+
+    LOW = auto()
+    NORMAL = auto()
+    HIGH = auto()
+
+
+class EmailSensitivity(Enum):
+    """Niveaux de sensibilité email."""
+
+    NORMAL = auto()
+    PERSONAL = auto()
+    PRIVATE = auto()
+    CONFIDENTIAL = auto()
+
+
+class EmailFormat(Enum):
+    """Formats de message."""
+
+    HTML = auto()
+    PLAIN_TEXT = auto()
+    RTF = auto()
+
+
+class MeetingResponseType(Enum):
+    """Types de réponse aux réunions."""
+
+    ACCEPT = auto()
+    DECLINE = auto()
+    TENTATIVE = auto()
+
+
+class TaskStatus(Enum):
+    """Statuts de tâche."""
+
+    NOT_STARTED = auto()
+    IN_PROGRESS = auto()
+    COMPLETED = auto()
+    WAITING = auto()
+    DEFERRED = auto()
+
+
+class TaskPriority(Enum):
+    """Priorités de tâche."""
+
+    LOW = auto()
+    NORMAL = auto()
+    HIGH = auto()
+
+
+class BusyStatus(Enum):
+    """Statuts de disponibilité."""
+
+    FREE = auto()
+    TENTATIVE = auto()
+    BUSY = auto()
+    OUT_OF_OFFICE = auto()
+
+
+class RecurrenceType(Enum):
+    """Types de récurrence."""
+
+    DAILY = auto()
+    WEEKLY = auto()
+    MONTHLY = auto()
+    YEARLY = auto()
+
+
 # Literal types for specific parameters
 WdUnderlineStyle: TypeAlias = Literal[
     "none", "single", "double", "dotted", "dashed", "wave"
@@ -155,3 +237,4 @@ NumberFormat: TypeAlias = Literal[
     "general", "number", "currency", "accounting", "date", "time", "percentage",
     "fraction", "scientific", "text"
 ]
+EmailAddress: TypeAlias = str
