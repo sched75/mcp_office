@@ -42,6 +42,9 @@ ignore = [
     "S101",  # use of assert
     "N802",  # function name should be lowercase (mock COM methods need PascalCase)
 ]
+"test_windows.py" = [
+    "F401",  # allow unused imports for test imports
+]
 
 [format]
 # Use double quotes for strings
