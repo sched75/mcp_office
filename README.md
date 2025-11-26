@@ -11,17 +11,17 @@
 
 ## 📋 Vue d'Ensemble
 
-**MCP Office** est un serveur MCP qui expose **295 outils** pour automatiser Microsoft Office via COM Automation. Il permet à Claude de créer, modifier et gérer des documents Office de manière naturelle et intuitive.
+**MCP Office** est un serveur MCP qui expose **271 outils** pour automatiser Microsoft Office via COM Automation. Il permet à Claude de créer, modifier et gérer des documents Office de manière naturelle et intuitive.
 
 ### ✨ Fonctionnalités
 
 | Application | Outils | Fonctionnalités Clés |
 |-------------|--------|----------------------|
-| **Word** | 65 | Documents, formatage, tableaux, images, publipostage, PDF |
+| **Word** | 59 | Documents, formatage, tableaux, images, publipostage, PDF |
 | **Excel** | 82 | Classeurs, formules, graphiques, tableaux croisés, analyse |
 | **PowerPoint** | 63 | Présentations, diapositives, animations, médias, export |
-| **Outlook** | 85 | Emails, calendrier, contacts, tâches, réunions |
-| **TOTAL** | **295** | **Automation complète d'Office** |
+| **Outlook** | 67 | Emails, calendrier, contacts, tâches, réunions |
+| **TOTAL** | **271** | **Automation complète d'Office** |
 
 ---
 
