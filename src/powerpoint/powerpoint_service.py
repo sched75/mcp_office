@@ -333,7 +333,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
         # Find the content placeholder
         for shape in slide.Shapes:
-            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
+            if (
+                shape.Type == 14 and shape.PlaceholderFormat.Type == 2
+            ):  # msoPlaceholder and ppPlaceholderBody
                 shape.TextFrame.TextRange.Text = body_text
                 return dict_to_result(success=True, message="Body text updated")
 
@@ -347,7 +349,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
         # Find content placeholder
         for shape in slide.Shapes:
-            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
+            if (
+                shape.Type == 14 and shape.PlaceholderFormat.Type == 2
+            ):  # msoPlaceholder and ppPlaceholderBody
                 text_frame = shape.TextFrame.TextRange
                 text_frame.Text = "\n".join(bullet_points)
 
@@ -369,7 +373,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         slide = pres.Slides(slide_index)
 
         for shape in slide.Shapes:
-            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
+            if (
+                shape.Type == 14 and shape.PlaceholderFormat.Type == 2
+            ):  # msoPlaceholder and ppPlaceholderBody
                 text_frame = shape.TextFrame.TextRange
                 text_frame.Text = "\n".join(items)
 
