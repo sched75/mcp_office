@@ -170,7 +170,7 @@ def route_to_service(service_prefix: str, service_instance, config, name: str, a
     """Route une requête vers un service spécifique."""
     if service_instance is None:
         raise COMInitializationError(f"{service_prefix.capitalize()} service not initialized")
-    
+
     handlers = build_handlers(service_instance, config, service_prefix)
     if name in handlers:
         return handlers[name](arguments)
@@ -184,9 +184,9 @@ def handle_tool_error(name: str, error: Exception) -> list[TextContent]:
         NotImplementedError: f"Outil non implémenté: {str(error)}",
         InvalidParameterError: f"Paramètres invalides: {str(error)}",
         DocumentNotFoundError: f"Document non trouvé: {str(error)}",
-        COMInitializationError: f"Erreur d'initialisation: {str(error)}"
+        COMInitializationError: f"Erreur d'initialisation: {str(error)}",
     }
-    
+
     error_type = type(error)
     if error_type in error_messages:
         logger.error(f"Error calling tool {name}: {error}")
@@ -202,10 +202,10 @@ def get_service_prefix(name: str) -> Optional[str]:
         "word": (word_service, WORD_TOOLS_CONFIG, "word"),
         "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
         "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
-        "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+        "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook"),
     }
-    
-    for prefix in service_mapping.keys():
+
+    for prefix in service_mapping:
         if name.startswith(f"{prefix}_"):
             return prefix
     return None
@@ -231,7 +231,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
             "word": (word_service, WORD_TOOLS_CONFIG, "word"),
             "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
             "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
-            "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+            "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook"),
         }
 
         service_instance, config, _ = service_mapping[service_prefix]
