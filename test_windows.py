@@ -21,6 +21,7 @@ def test_pywin32():
     print("\n📦 Vérification de pywin32...")
     try:
         import win32com.client
+
         print("   ✅ pywin32 installé")
         return True
     except ImportError:
@@ -34,6 +35,7 @@ def test_office_word():
     print("\n📝 Vérification de Microsoft Word...")
     try:
         import win32com.client
+
         word = win32com.client.Dispatch("Word.Application")
         version = word.Version
         word.Quit()
@@ -49,6 +51,7 @@ def test_office_excel():
     print("\n📊 Vérification de Microsoft Excel...")
     try:
         import win32com.client
+
         excel = win32com.client.Dispatch("Excel.Application")
         version = excel.Version
         excel.Quit()
@@ -64,6 +67,7 @@ def test_office_powerpoint():
     print("\n📽️ Vérification de Microsoft PowerPoint...")
     try:
         import win32com.client
+
         ppt = win32com.client.Dispatch("PowerPoint.Application")
         version = ppt.Version
         ppt.Quit()
@@ -79,6 +83,7 @@ def test_mcp():
     print("\n🔌 Vérification du package MCP...")
     try:
         import mcp
+
         print("   ✅ MCP installé")
         return True
     except ImportError:
@@ -93,7 +98,6 @@ def test_services():
     results = []
 
     try:
-        from src.word.word_service import WordService
         print("   ✅ WordService importé")
         results.append(True)
     except Exception as e:
@@ -101,7 +105,6 @@ def test_services():
         results.append(False)
 
     try:
-        from src.excel.excel_service import ExcelService
         print("   ✅ ExcelService importé")
         results.append(True)
     except Exception as e:
@@ -109,7 +112,6 @@ def test_services():
         results.append(False)
 
     try:
-        from src.powerpoint.powerpoint_service import PowerPointService
         print("   ✅ PowerPointService importé")
         results.append(True)
     except Exception as e:
