@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "mcp-office": {
+      "command": "python",
+      "args": [
+        "-m",
+        "src.server"
+      ],
+      "cwd": "C:\\Users\\dsi\\OneDrive\\Documents\\Personnel\\mcp_office",
+      "env": {
+        "PYTHONPATH": "C:\\Users\\dsi\\OneDrive\\Documents\\Personnel\\mcp_office",
+        "PYTHON_UNBUFFERED": "1"
+      },
+      "disabled": false
+    }
+  }
+}
