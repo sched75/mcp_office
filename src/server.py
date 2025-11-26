@@ -16,28 +16,28 @@ Version: 3.0.0 - Complete Integration
 
 import asyncio
 import logging
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Callable, Dict, Optional
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 
-from src.word.word_service import WordService
-from src.excel.excel_service import ExcelService
-from src.powerpoint.powerpoint_service import PowerPointService
-from src.outlook.outlook_service import OutlookService
 from src.core.exceptions import (
     COMInitializationError,
     DocumentNotFoundError,
     InvalidParameterError,
 )
+from src.excel.excel_service import ExcelService
+from src.outlook.outlook_service import OutlookService
+from src.powerpoint.powerpoint_service import PowerPointService
+from src.word.word_service import WordService
 
 # Import des configurations d'outils
 from tools_configs import (
-    WORD_TOOLS_CONFIG,
     EXCEL_TOOLS_CONFIG,
-    POWERPOINT_TOOLS_CONFIG,
     OUTLOOK_TOOLS_CONFIG,
+    POWERPOINT_TOOLS_CONFIG,
+    WORD_TOOLS_CONFIG,
 )
 
 # Configuration du logging
@@ -60,6 +60,7 @@ outlook_service: Optional[OutlookService] = None
 # =============================================================================
 # UTILITY FUNCTIONS
 # =============================================================================
+
 
 def format_result(result: Dict[str, Any]) -> str:
     """Formate un résultat pour l'affichage."""
@@ -88,11 +89,11 @@ def validate_parameters(params: Dict[str, Any], required: list[str]) -> None:
 def generate_tool(service_prefix: str, name: str, config: dict) -> Tool:
     """Génère un outil MCP à partir de sa configuration."""
     properties = {}
-    
+
     # Ajouter tous les paramètres (requis et optionnels)
     for param in config.get("required", []) + config.get("optional", []):
         properties[param] = {"type": "string"}  # Type par défaut
-    
+
     return Tool(
         name=f"{service_prefix}_{name}",
         description=config["desc"],
@@ -106,11 +107,11 @@ def generate_tool(service_prefix: str, name: str, config: dict) -> Tool:
 
 def build_handlers(service: Any, service_config: Dict, service_prefix: str) -> Dict[str, Callable]:
     """Construit le mapping des handlers de manière dynamique."""
-    
+
     def create_handler(method_name: str, config: dict):
         """Crée un handler dynamique pour une méthode."""
         method = getattr(service, method_name)
-        
+
         def handler(args: dict):
             # Extraire tous les arguments (requis + optionnels)
             kwargs = {}
@@ -118,15 +119,15 @@ def build_handlers(service: Any, service_config: Dict, service_prefix: str) -> D
                 if param in args:
                     kwargs[param] = args[param]
             return method(**kwargs)
-        
+
         return handler
-    
+
     # Générer tous les handlers automatiquement
     handlers = {}
     for method_name, config in service_config.items():
         tool_name = f"{service_prefix}_{method_name}"
         handlers[tool_name] = create_handler(method_name, config)
-    
+
     return handlers
 
 
@@ -134,172 +135,161 @@ def build_handlers(service: Any, service_config: Dict, service_prefix: str) -> D
 # MCP SERVER HANDLERS
 # =============================================================================
 
+
 @app.list_tools()
 async def list_tools() -> list[Tool]:
     """Liste tous les outils disponibles (271 outils)."""
     tools = []
-    
+
     # Générer les outils Word
     for method_name, config in WORD_TOOLS_CONFIG.items():
         tools.append(generate_tool("word", method_name, config))
-    
+
     # Générer les outils Excel
     for method_name, config in EXCEL_TOOLS_CONFIG.items():
         tools.append(generate_tool("excel", method_name, config))
-    
+
     # Générer les outils PowerPoint
     for method_name, config in POWERPOINT_TOOLS_CONFIG.items():
         tools.append(generate_tool("powerpoint", method_name, config))
-    
+
     # Générer les outils Outlook
     for method_name, config in OUTLOOK_TOOLS_CONFIG.items():
         tools.append(generate_tool("outlook", method_name, config))
-    
+
     logger.info(f"Loaded {len(tools)} tools total")
     logger.info(f"  - Word: {len(WORD_TOOLS_CONFIG)} tools")
     logger.info(f"  - Excel: {len(EXCEL_TOOLS_CONFIG)} tools")
     logger.info(f"  - PowerPoint: {len(POWERPOINT_TOOLS_CONFIG)} tools")
     logger.info(f"  - Outlook: {len(OUTLOOK_TOOLS_CONFIG)} tools")
-    
+
     return tools
+
+
+def route_to_service(service_prefix: str, service_instance, config, name: str, arguments: dict):
+    """Route une requête vers un service spécifique."""
+    if service_instance is None:
+        raise COMInitializationError(f"{service_prefix.capitalize()} service not initialized")
+    
+    handlers = build_handlers(service_instance, config, service_prefix)
+    if name in handlers:
+        return handlers[name](arguments)
+    else:
+        raise NotImplementedError(f"Outil {service_prefix} non implémenté: {name}")
+
+
+def handle_tool_error(name: str, error: Exception) -> list[TextContent]:
+    """Gère les erreurs d'exécution d'outils."""
+    error_messages = {
+        NotImplementedError: f"Outil non implémenté: {str(error)}",
+        InvalidParameterError: f"Paramètres invalides: {str(error)}",
+        DocumentNotFoundError: f"Document non trouvé: {str(error)}",
+        COMInitializationError: f"Erreur d'initialisation: {str(error)}"
+    }
+    
+    error_type = type(error)
+    if error_type in error_messages:
+        logger.error(f"Error calling tool {name}: {error}")
+        return [TextContent(type="text", text=f"❌ {error_messages[error_type]}")]
+    else:
+        logger.exception(f"Unexpected error calling tool {name}")
+        return [TextContent(type="text", text=f"❌ Erreur inattendue: {str(error)}")]
+
+
+def get_service_prefix(name: str) -> Optional[str]:
+    """Identifie le préfixe de service à partir du nom de l'outil."""
+    service_mapping = {
+        "word": (word_service, WORD_TOOLS_CONFIG, "word"),
+        "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
+        "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
+        "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+    }
+    
+    for prefix in service_mapping.keys():
+        if name.startswith(f"{prefix}_"):
+            return prefix
+    return None
 
 
 @app.call_tool()
 async def call_tool(name: str, arguments: Any) -> list[TextContent]:
     """Exécute un outil MCP avec routing automatique."""
     logger.info(f"Calling tool: {name}")
-    
+
     try:
         # Convertir arguments en dictionnaire
         if not isinstance(arguments, dict):
             arguments = {}
-        
-        result = None
-        
-        # === WORD TOOLS ===
-        if name.startswith("word_"):
-            if word_service is None:
-                raise COMInitializationError("Word service not initialized")
-            
-            handlers = build_handlers(word_service, WORD_TOOLS_CONFIG, "word")
-            
-            if name in handlers:
-                result = handlers[name](arguments)
-            else:
-                return [TextContent(
-                    type="text",
-                    text=f"❌ Outil Word non implémenté: {name}"
-                )]
-        
-        # === EXCEL TOOLS ===
-        elif name.startswith("excel_"):
-            if excel_service is None:
-                raise COMInitializationError("Excel service not initialized")
-            
-            handlers = build_handlers(excel_service, EXCEL_TOOLS_CONFIG, "excel")
-            
-            if name in handlers:
-                result = handlers[name](arguments)
-            else:
-                return [TextContent(
-                    type="text",
-                    text=f"❌ Outil Excel non implémenté: {name}"
-                )]
-        
-        # === POWERPOINT TOOLS ===
-        elif name.startswith("powerpoint_"):
-            if powerpoint_service is None:
-                raise COMInitializationError("PowerPoint service not initialized")
-            
-            handlers = build_handlers(powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint")
-            
-            if name in handlers:
-                result = handlers[name](arguments)
-            else:
-                return [TextContent(
-                    type="text",
-                    text=f"❌ Outil PowerPoint non implémenté: {name}"
-                )]
-        
-        # === OUTLOOK TOOLS ===
-        elif name.startswith("outlook_"):
-            if outlook_service is None:
-                raise COMInitializationError("Outlook service not initialized")
-            
-            handlers = build_handlers(outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
-            
-            if name in handlers:
-                result = handlers[name](arguments)
-            else:
-                return [TextContent(
-                    type="text",
-                    text=f"❌ Outil Outlook non implémenté: {name}"
-                )]
-        
-        else:
+
+        # Identifier le service cible
+        service_prefix = get_service_prefix(name)
+        if not service_prefix:
             return [TextContent(type="text", text=f"❌ Outil inconnu: {name}")]
-        
+
+        # Mapping des services
+        service_mapping = {
+            "word": (word_service, WORD_TOOLS_CONFIG, "word"),
+            "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
+            "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
+            "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+        }
+
+        service_instance, config, _ = service_mapping[service_prefix]
+        result = route_to_service(service_prefix, service_instance, config, name, arguments)
+
         # Formater et retourner le résultat
         if result is None:
-            return [TextContent(type="text", text=f"❌ Aucun résultat retourné")]
-        
+            return [TextContent(type="text", text="❌ Aucun résultat retourné")]
+
         formatted = format_result(result)
         return [TextContent(type="text", text=formatted)]
-    
-    except InvalidParameterError as e:
-        logger.error(f"Invalid parameters for {name}: {e}")
-        return [TextContent(type="text", text=f"❌ Paramètres invalides: {e}")]
-    
-    except DocumentNotFoundError as e:
-        logger.error(f"Document not found: {e}")
-        return [TextContent(type="text", text=f"❌ Document non trouvé: {e}")]
-    
-    except COMInitializationError as e:
-        logger.error(f"COM initialization error: {e}")
-        return [TextContent(type="text", text=f"❌ Erreur d'initialisation: {e}")]
-    
+
     except Exception as e:
-        logger.exception(f"Error calling tool {name}")
-        return [TextContent(type="text", text=f"❌ Erreur inattendue: {str(e)}")]
+        return handle_tool_error(name, e)
 
 
 # =============================================================================
 # LIFECYCLE MANAGEMENT
 # =============================================================================
 
+
 async def initialize_services():
     """Initialise tous les services Office."""
     global word_service, excel_service, powerpoint_service, outlook_service
-    
+
     logger.info("Initializing Office services...")
-    
+
     try:
         # Initialiser Word
         word_service = WordService()
         word_service.initialize()
         logger.info(f"✅ Word service initialized ({len(WORD_TOOLS_CONFIG)} tools)")
-        
+
         # Initialiser Excel
         excel_service = ExcelService()
         excel_service.initialize()
         logger.info(f"✅ Excel service initialized ({len(EXCEL_TOOLS_CONFIG)} tools)")
-        
+
         # Initialiser PowerPoint
         powerpoint_service = PowerPointService()
         powerpoint_service.initialize()
         logger.info(f"✅ PowerPoint service initialized ({len(POWERPOINT_TOOLS_CONFIG)} tools)")
-        
+
         # Initialiser Outlook
         outlook_service = OutlookService()
         outlook_service.initialize()
         logger.info(f"✅ Outlook service initialized ({len(OUTLOOK_TOOLS_CONFIG)} tools)")
-        
-        total_tools = (len(WORD_TOOLS_CONFIG) + len(EXCEL_TOOLS_CONFIG) + 
-                      len(POWERPOINT_TOOLS_CONFIG) + len(OUTLOOK_TOOLS_CONFIG))
-        
+
+        total_tools = (
+            len(WORD_TOOLS_CONFIG)
+            + len(EXCEL_TOOLS_CONFIG)
+            + len(POWERPOINT_TOOLS_CONFIG)
+            + len(OUTLOOK_TOOLS_CONFIG)
+        )
+
         logger.info("🚀 All Office services ready!")
         logger.info(f"📊 Total tools available: {total_tools}")
-    
+
     except Exception as e:
         logger.error(f"Failed to initialize services: {e}")
         raise
@@ -308,7 +298,7 @@ async def initialize_services():
 async def cleanup_services():
     """Nettoie tous les services Office."""
     logger.info("Cleaning up Office services...")
-    
+
     try:
         if word_service:
             word_service.cleanup()
@@ -318,7 +308,7 @@ async def cleanup_services():
             powerpoint_service.cleanup()
         if outlook_service:
             outlook_service.cleanup()
-        
+
         logger.info("✅ All services cleaned up")
     except Exception as e:
         logger.error(f"Error during cleanup: {e}")
@@ -330,11 +320,11 @@ async def main():
     logger.info("=" * 80)
     logger.info("MCP Office - Complete Office Automation Server")
     logger.info("=" * 80)
-    
+
     try:
         # Initialiser les services
         await initialize_services()
-        
+
         # Démarrer le serveur MCP
         async with stdio_server() as (read_stream, write_stream):
             await app.run(
@@ -342,10 +332,10 @@ async def main():
                 write_stream,
                 app.create_initialization_options(),
             )
-    
+
     except KeyboardInterrupt:
         logger.info("Server interrupted by user")
-    except Exception as e:
+    except Exception:
         logger.exception("Fatal error in server")
         raise
     finally:
