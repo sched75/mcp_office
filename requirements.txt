@@ -1,7 +1,7 @@
 # MCP Office - Requirements
 
 # Core dependencies
-pywin32==306
+pywin32>=306
 pythoncom
 
 # MCP Server
