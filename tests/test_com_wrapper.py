@@ -1,7 +1,5 @@
 """Unit tests for COM wrapper module."""
 
-from unittest.mock import Mock
-
 import pytest
 
 from src.core.exceptions import COMOperationError

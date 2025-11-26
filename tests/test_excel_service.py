@@ -22,7 +22,9 @@ def excel_service(mock_pythoncom: Any, mocker: Any) -> ExcelService:
 
 
 @pytest.fixture
-def excel_service_with_wb(excel_service: ExcelService, mock_excel_workbook: MagicMock) -> ExcelService:
+def excel_service_with_wb(
+    excel_service: ExcelService, mock_excel_workbook: MagicMock
+) -> ExcelService:
     """Create an ExcelService with an open workbook."""
     excel_service._current_document = mock_excel_workbook
     return excel_service
@@ -320,9 +322,7 @@ class TestChartOperations:
         mock_ws.Range.return_value = MagicMock()
         excel_service_with_wb.current_document.Worksheets.return_value = mock_ws
 
-        result = excel_service_with_wb.create_chart(
-            "Sheet1", "column", "A1:B10", "Sales Chart"
-        )
+        result = excel_service_with_wb.create_chart("Sheet1", "column", "A1:B10", "Sales Chart")
 
         assert result["success"] is True
         mock_chart_objects.Add.assert_called_once()

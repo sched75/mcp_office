@@ -1,7 +1,7 @@
 """Unit tests for MCP server."""
 
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -42,30 +42,27 @@ class TestServerInitialization:
 
     def test_get_word_service(self, mock_pythoncom: Any) -> None:
         """Test getting Word service instance."""
-        with patch("win32com.client.Dispatch"):
-            with patch("src.server._word_service", None):
-                from src.server import get_word_service
+        with patch("win32com.client.Dispatch"), patch("src.server._word_service", None):
+            from src.server import get_word_service
 
-                service = get_word_service()
-                assert service is not None
+            service = get_word_service()
+            assert service is not None
 
     def test_get_excel_service(self, mock_pythoncom: Any) -> None:
         """Test getting Excel service instance."""
-        with patch("win32com.client.Dispatch"):
-            with patch("src.server._excel_service", None):
-                from src.server import get_excel_service
+        with patch("win32com.client.Dispatch"), patch("src.server._excel_service", None):
+            from src.server import get_excel_service
 
-                service = get_excel_service()
-                assert service is not None
+            service = get_excel_service()
+            assert service is not None
 
     def test_get_powerpoint_service(self, mock_pythoncom: Any) -> None:
         """Test getting PowerPoint service instance."""
-        with patch("win32com.client.Dispatch"):
-            with patch("src.server._powerpoint_service", None):
-                from src.server import get_powerpoint_service
+        with patch("win32com.client.Dispatch"), patch("src.server._powerpoint_service", None):
+            from src.server import get_powerpoint_service
 
-                service = get_powerpoint_service()
-                assert service is not None
+            service = get_powerpoint_service()
+            assert service is not None
 
 
 class TestToolListing:
@@ -223,9 +220,7 @@ class TestToolParameters:
     """Tests for tool parameter handling."""
 
     @pytest.mark.asyncio
-    async def test_word_insert_table_with_params(
-        self, mock_services: dict[str, MagicMock]
-    ) -> None:
+    async def test_word_insert_table_with_params(self, mock_services: dict[str, MagicMock]) -> None:
         """Test Word tool with multiple parameters."""
         mock_word = mock_services["word"]
         mock_word.insert_table.return_value = {"success": True, "message": "Table inserted"}

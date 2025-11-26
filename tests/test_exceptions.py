@@ -132,7 +132,9 @@ class TestFileOperationError:
 
     def test_with_file_path_and_operation(self) -> None:
         """Test error with file path and operation."""
-        error = FileOperationError(file_path="/test.docx", operation="save", reason="permission denied")
+        error = FileOperationError(
+            file_path="/test.docx", operation="save", reason="permission denied"
+        )
         assert "/test.docx" in str(error)
         assert "save" in str(error)
         assert "permission denied" in str(error)
