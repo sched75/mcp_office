@@ -103,7 +103,9 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
             doc.Save()
             message = "Document saved successfully"
 
-        return dict_to_result(success=True, message=message, file_path=str(file_path or doc.FullName))
+        return dict_to_result(
+            success=True, message=message, file_path=str(file_path or doc.FullName)
+        )
 
     @com_safe("close_document")
     def close_document(self, save_changes: bool = False) -> dict[str, Any]:
@@ -301,7 +303,9 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         if italic is not None:
             text_range.Font.Italic = italic
         if underline is not None:
-            text_range.Font.Underline = COMConstants.WD_UNDERLINE_SINGLE if underline else COMConstants.WD_UNDERLINE_NONE
+            text_range.Font.Underline = (
+                COMConstants.WD_UNDERLINE_SINGLE if underline else COMConstants.WD_UNDERLINE_NONE
+            )
         if font_name:
             text_range.Font.Name = font_name
         if font_size:
@@ -329,9 +333,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Alignment applied", alignment=alignment)
 
     @com_safe("apply_style")
-    def apply_style(
-        self, style_name: str, paragraph_index: int | None = None
-    ) -> dict[str, Any]:
+    def apply_style(self, style_name: str, paragraph_index: int | None = None) -> dict[str, Any]:
         """Apply predefined style."""
         doc = self.current_document
 
@@ -467,7 +469,9 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
     # ========================================================================
 
     @com_safe("insert_image")
-    def insert_image(self, image_path: str, width: float | None = None, height: float | None = None) -> dict[str, Any]:
+    def insert_image(
+        self, image_path: str, width: float | None = None, height: float | None = None
+    ) -> dict[str, Any]:
         """Insert image from file."""
         path = validate_file_path(image_path, must_exist=True)
         doc = self.current_document
@@ -629,7 +633,9 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Page break inserted")
 
     @com_safe("insert_section_break")
-    def insert_section_break(self, break_type: int = win_constants.wdSectionBreakNextPage) -> dict[str, Any]:
+    def insert_section_break(
+        self, break_type: int = win_constants.wdSectionBreakNextPage
+    ) -> dict[str, Any]:
         """Insert section break."""
         selection = self.application.Selection
         selection.InsertBreak(Type=break_type)
@@ -845,7 +851,9 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Mail merge completed")
 
     @com_safe("insert_bookmark")
-    def insert_bookmark(self, name: str, range_start: int = 0, range_end: int = 0) -> dict[str, Any]:
+    def insert_bookmark(
+        self, name: str, range_start: int = 0, range_end: int = 0
+    ) -> dict[str, Any]:
         """Insert bookmark."""
         doc = self.current_document
         bookmark_range = doc.Range(Start=range_start, End=range_end)

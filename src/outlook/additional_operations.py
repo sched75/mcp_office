@@ -345,13 +345,15 @@ class ContactOperationsMixin:
 
         results = []
         for contact in items:
-            results.append({
-                "entry_id": contact.EntryID,
-                "full_name": contact.FullName,
-                "email": contact.Email1Address,
-                "phone": contact.BusinessTelephoneNumber,
-                "company": contact.CompanyName,
-            })
+            results.append(
+                {
+                    "entry_id": contact.EntryID,
+                    "full_name": contact.FullName,
+                    "email": contact.Email1Address,
+                    "phone": contact.BusinessTelephoneNumber,
+                    "company": contact.CompanyName,
+                }
+            )
 
         return dict_to_result(
             success=True,
@@ -368,11 +370,13 @@ class ContactOperationsMixin:
 
         results = []
         for contact in contacts_folder.Items:
-            results.append({
-                "entry_id": contact.EntryID,
-                "full_name": contact.FullName,
-                "email": contact.Email1Address,
-            })
+            results.append(
+                {
+                    "entry_id": contact.EntryID,
+                    "full_name": contact.FullName,
+                    "email": contact.Email1Address,
+                }
+            )
 
         return dict_to_result(
             success=True,
@@ -602,13 +606,15 @@ class TaskOperationsMixin:
 
         results = []
         for task in items:
-            results.append({
-                "entry_id": task.EntryID,
-                "subject": task.Subject,
-                "due_date": str(task.DueDate) if task.DueDate else None,
-                "complete": task.Complete,
-                "priority": task.Importance,
-            })
+            results.append(
+                {
+                    "entry_id": task.EntryID,
+                    "subject": task.Subject,
+                    "due_date": str(task.DueDate) if task.DueDate else None,
+                    "complete": task.Complete,
+                    "priority": task.Importance,
+                }
+            )
 
         return dict_to_result(
             success=True,
@@ -675,11 +681,13 @@ class AdvancedOperationsMixin:
 
         results = []
         for account in accounts:
-            results.append({
-                "display_name": account.DisplayName,
-                "user_name": account.UserName,
-                "smtp_address": account.SmtpAddress,
-            })
+            results.append(
+                {
+                    "display_name": account.DisplayName,
+                    "user_name": account.UserName,
+                    "smtp_address": account.SmtpAddress,
+                }
+            )
 
         return dict_to_result(
             success=True,

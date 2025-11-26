@@ -214,8 +214,12 @@ class CalendarOperationsMixin:
             location=appt.Location,
             body=appt.Body,
             organizer=appt.Organizer,
-            required_attendees=appt.RequiredAttendees if hasattr(appt, "RequiredAttendees") else None,
-            optional_attendees=appt.OptionalAttendees if hasattr(appt, "OptionalAttendees") else None,
+            required_attendees=appt.RequiredAttendees
+            if hasattr(appt, "RequiredAttendees")
+            else None,
+            optional_attendees=appt.OptionalAttendees
+            if hasattr(appt, "OptionalAttendees")
+            else None,
             busy_status=appt.BusyStatus,
             reminder_set=appt.ReminderSet,
             reminder_minutes=appt.ReminderMinutesBeforeStart if appt.ReminderSet else 0,
@@ -283,9 +287,7 @@ class CalendarOperationsMixin:
             if occurrences:
                 rec_pattern.Occurrences = occurrences
             elif end_date:
-                rec_pattern.PatternEndDate = datetime.fromisoformat(
-                    end_date.replace("Z", "+00:00")
-                )
+                rec_pattern.PatternEndDate = datetime.fromisoformat(end_date.replace("Z", "+00:00"))
 
             appt.Save()
 
@@ -335,7 +337,9 @@ class CalendarOperationsMixin:
             if subject:
                 filters.append(f"@SQL=\"urn:schemas:httpmail:subject\" LIKE '%{subject}%'")
             if location:
-                filters.append(f"@SQL=\"http://schemas.microsoft.com/mapi/location\" LIKE '%{location}%'")
+                filters.append(
+                    f"@SQL=\"http://schemas.microsoft.com/mapi/location\" LIKE '%{location}%'"
+                )
             if start_date:
                 filters.append(f"@SQL=\"urn:schemas:calendar:dtstart\" >= '{start_date}'")
             if end_date:
@@ -355,15 +359,17 @@ class CalendarOperationsMixin:
                 if len(results) >= max_results:
                     break
 
-                results.append({
-                    "entry_id": item.EntryID,
-                    "subject": item.Subject,
-                    "start_time": str(item.Start),
-                    "end_time": str(item.End),
-                    "location": item.Location,
-                    "is_recurring": item.IsRecurring,
-                    "busy_status": item.BusyStatus,
-                })
+                results.append(
+                    {
+                        "entry_id": item.EntryID,
+                        "subject": item.Subject,
+                        "start_time": str(item.Start),
+                        "end_time": str(item.End),
+                        "location": item.Location,
+                        "is_recurring": item.IsRecurring,
+                        "busy_status": item.BusyStatus,
+                    }
+                )
 
             return dict_to_result(
                 success=True,

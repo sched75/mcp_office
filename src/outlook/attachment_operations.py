@@ -100,13 +100,15 @@ class AttachmentOperationsMixin:
         attachments = []
         for i in range(1, mail_item.Attachments.Count + 1):
             att = mail_item.Attachments.Item(i)
-            attachments.append({
-                "index": i,
-                "filename": att.FileName,
-                "display_name": att.DisplayName,
-                "size": att.Size,
-                "type": att.Type,  # 1=File, 2=OLE, 3=Link, etc.
-            })
+            attachments.append(
+                {
+                    "index": i,
+                    "filename": att.FileName,
+                    "display_name": att.DisplayName,
+                    "size": att.Size,
+                    "type": att.Type,  # 1=File, 2=OLE, 3=Link, etc.
+                }
+            )
 
         return dict_to_result(
             success=True,

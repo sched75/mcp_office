@@ -496,7 +496,7 @@ class MailOperationsMixin:
         if sender:
             filters.append(f"@SQL=\"urn:schemas:httpmail:fromname\" LIKE '%{sender}%'")
         if unread_only:
-            filters.append("@SQL=\"urn:schemas:httpmail:read\" = 0")
+            filters.append('@SQL="urn:schemas:httpmail:read" = 0')
         if start_date:
             filters.append(f"@SQL=\"urn:schemas:httpmail:datereceived\" >= '{start_date}'")
         if end_date:
@@ -564,7 +564,9 @@ class MailOperationsMixin:
             folder = folder.Folders(folder_name)
 
         # Build and apply filter
-        filter_string = self._build_search_filter(subject, sender, unread_only, start_date, end_date)
+        filter_string = self._build_search_filter(
+            subject, sender, unread_only, start_date, end_date
+        )
         items = folder.Items.Restrict(filter_string) if filter_string else folder.Items
 
         # Collect results
