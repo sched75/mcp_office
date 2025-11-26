@@ -5,7 +5,7 @@ This module provides all email-related functionality (12 methods).
 
 from typing import Any
 
-from ..core.exceptions import InvalidRecipientError, OutlookItemNotFoundError
+from ..core.exceptions import OutlookItemNotFoundError
 from ..utils.com_wrapper import com_safe
 from ..utils.helpers import dict_to_result
 from ..utils.validators import validate_string_not_empty
@@ -470,6 +470,59 @@ class MailOperationsMixin:
             destination=folder_path,
         )
 
+    def _build_search_filter(
+        self,
+        subject: str | None,
+        sender: str | None,
+        unread_only: bool,
+        start_date: str | None,
+        end_date: str | None,
+    ) -> str | None:
+        """Build SQL filter string for email search.
+
+        Args:
+            subject: Subject to search for
+            sender: Sender to filter by
+            unread_only: Only unread emails
+            start_date: Start date filter
+            end_date: End date filter
+
+        Returns:
+            SQL filter string or None if no filters
+        """
+        filters = []
+        if subject:
+            filters.append(f"@SQL=\"urn:schemas:httpmail:subject\" LIKE '%{subject}%'")
+        if sender:
+            filters.append(f"@SQL=\"urn:schemas:httpmail:fromname\" LIKE '%{sender}%'")
+        if unread_only:
+            filters.append("@SQL=\"urn:schemas:httpmail:read\" = 0")
+        if start_date:
+            filters.append(f"@SQL=\"urn:schemas:httpmail:datereceived\" >= '{start_date}'")
+        if end_date:
+            filters.append(f"@SQL=\"urn:schemas:httpmail:datereceived\" <= '{end_date}'")
+
+        return " AND ".join(filters) if filters else None
+
+    def _extract_email_data(self, item: Any) -> dict[str, Any]:
+        """Extract data from an email item.
+
+        Args:
+            item: Email item object
+
+        Returns:
+            Dictionary with email data
+        """
+        return {
+            "entry_id": item.EntryID,
+            "subject": item.Subject,
+            "sender": item.SenderName,
+            "sender_email": item.SenderEmailAddress,
+            "received_time": str(item.ReceivedTime),
+            "unread": item.UnRead,
+            "has_attachments": item.Attachments.Count > 0,
+        }
+
     @com_safe("search_emails")
     def search_emails(
         self,
@@ -510,47 +563,21 @@ class MailOperationsMixin:
         if folder_name != "Inbox":
             folder = folder.Folders(folder_name)
 
-        # Build filter string
-        filters = []
-        if subject:
-            filters.append(f"@SQL=\"urn:schemas:httpmail:subject\" LIKE '%{subject}%'")
-        if sender:
-            filters.append(f"@SQL=\"urn:schemas:httpmail:fromname\" LIKE '%{sender}%'")
-        if unread_only:
-            filters.append("@SQL=\"urn:schemas:httpmail:read\" = 0")
-        if start_date:
-            filters.append(
-                f"@SQL=\"urn:schemas:httpmail:datereceived\" >= '{start_date}'"
-            )
-        if end_date:
-            filters.append(f"@SQL=\"urn:schemas:httpmail:datereceived\" <= '{end_date}'")
+        # Build and apply filter
+        filter_string = self._build_search_filter(subject, sender, unread_only, start_date, end_date)
+        items = folder.Items.Restrict(filter_string) if filter_string else folder.Items
 
-        filter_string = " AND ".join(filters) if filters else None
-
-        items = folder.Items
-        if filter_string:
-            items = items.Restrict(filter_string)
-
+        # Collect results
         results = []
-        count = 0
         for item in items:
-            if count >= max_results:
+            if len(results) >= max_results:
                 break
 
             # Additional body search if specified
             if body_contains and body_contains.lower() not in item.Body.lower():
                 continue
 
-            results.append({
-                "entry_id": item.EntryID,
-                "subject": item.Subject,
-                "sender": item.SenderName,
-                "sender_email": item.SenderEmailAddress,
-                "received_time": str(item.ReceivedTime),
-                "unread": item.UnRead,
-                "has_attachments": item.Attachments.Count > 0,
-            })
-            count += 1
+            results.append(self._extract_email_data(item))
 
         return dict_to_result(
             success=True,

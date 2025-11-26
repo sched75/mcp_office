@@ -3,7 +3,6 @@
 This module provides attachment-related functionality (5 methods).
 """
 
-from pathlib import Path
 from typing import Any
 
 from ..core.exceptions import AttachmentError, OutlookItemNotFoundError

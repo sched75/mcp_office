@@ -2,11 +2,7 @@
 
 import pytest
 
-from src.core.exceptions import (
-    AttachmentError,
-    COMInitializationError,
-    OutlookItemNotFoundError,
-)
+from src.core.exceptions import OutlookItemNotFoundError
 from src.outlook.outlook_service import OutlookService
 
 

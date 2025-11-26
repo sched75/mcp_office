@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import Any
 
 from ..core.exceptions import (
-    CalendarOperationError,
     MeetingOperationError,
     OutlookItemNotFoundError,
 )
@@ -110,7 +109,7 @@ class MeetingOperationsMixin:
             raise OutlookItemNotFoundError("meeting", meeting_entry_id)
 
         try:
-            response = meeting.Respond(3, True)  # 3 = olMeetingAccepted
+            meeting.Respond(3, True)  # 3 = olMeetingAccepted
             return dict_to_result(
                 success=True,
                 message="Meeting accepted",
@@ -129,7 +128,7 @@ class MeetingOperationsMixin:
             raise OutlookItemNotFoundError("meeting", meeting_entry_id)
 
         try:
-            response = meeting.Respond(4, True)  # 4 = olMeetingDeclined
+            meeting.Respond(4, True)  # 4 = olMeetingDeclined
             return dict_to_result(
                 success=True,
                 message="Meeting declined",
@@ -627,7 +626,7 @@ class AdvancedOperationsMixin:
         """Create a category."""
         namespace = self.application.GetNamespace("MAPI")
         categories = namespace.Categories
-        category = categories.Add(name, color)
+        categories.Add(name, color)
 
         return dict_to_result(
             success=True,

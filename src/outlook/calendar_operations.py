@@ -351,9 +351,8 @@ class CalendarOperationsMixin:
                 items = items.Restrict(filter_string)
 
             results = []
-            count = 0
             for item in items:
-                if count >= max_results:
+                if len(results) >= max_results:
                     break
 
                 results.append({
@@ -365,7 +364,6 @@ class CalendarOperationsMixin:
                     "is_recurring": item.IsRecurring,
                     "busy_status": item.BusyStatus,
                 })
-                count += 1
 
             return dict_to_result(
                 success=True,

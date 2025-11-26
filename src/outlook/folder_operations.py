@@ -57,7 +57,7 @@ class FolderOperationsMixin:
                     parent = parent.Folders(fname)
 
             # Create new folder
-            new_folder = parent.Folders.Add(folder_name)
+            parent.Folders.Add(folder_name)
 
             return dict_to_result(
                 success=True,
