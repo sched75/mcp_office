@@ -87,9 +87,7 @@ def validate_range_address(range_address: str) -> str:
         InvalidParameterError: If address is invalid
     """
     if not range_address:
-        raise InvalidParameterError(
-            "range_address", range_address, "Range address cannot be empty"
-        )
+        raise InvalidParameterError("range_address", range_address, "Range address cannot be empty")
 
     # Pattern: Cell:Cell
     pattern = r"^[A-Z]{1,3}[0-9]+:[A-Z]{1,3}[0-9]+$"

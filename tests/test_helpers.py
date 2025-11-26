@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-from src.core.exceptions import InvalidParameterError
 from src.utils.helpers import (
     column_letter_to_number,
     column_number_to_letter,
@@ -32,8 +31,8 @@ class TestSanitizeFilename:
     def test_sanitize_filename_special_chars(self) -> None:
         """Test removal of special characters."""
         assert sanitize_filename("test<file>.txt") == "test_file_.txt"
-        assert sanitize_filename('doc:with|chars?.xlsx') == "doc_with_chars_.xlsx"
-        assert sanitize_filename('file/with\\slashes.txt') == "file_with_slashes.txt"
+        assert sanitize_filename("doc:with|chars?.xlsx") == "doc_with_chars_.xlsx"
+        assert sanitize_filename("file/with\\slashes.txt") == "file_with_slashes.txt"
 
     def test_sanitize_filename_asterisk_and_quotes(self) -> None:
         """Test removal of asterisk and quotes."""

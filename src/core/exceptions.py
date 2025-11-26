@@ -169,3 +169,89 @@ class ResourceCleanupError(OfficeAutomationError):
         """
         message = f"Failed to cleanup resource: {resource}"
         super().__init__(message, details)
+
+
+class OutlookItemNotFoundError(OfficeAutomationError):
+    """Raised when an Outlook item is not found."""
+
+    def __init__(self, item_type: str, identifier: str) -> None:
+        """Initialize Outlook item not found error.
+
+        Args:
+            item_type: Type of Outlook item (email, appointment, etc.)
+            identifier: Identifier used to search for the item
+        """
+        message = f"Outlook {item_type} not found: {identifier}"
+        super().__init__(message)
+
+
+class InvalidRecipientError(OfficeAutomationError):
+    """Raised when an email recipient is invalid."""
+
+    def __init__(self, recipient: str, reason: str) -> None:
+        """Initialize invalid recipient error.
+
+        Args:
+            recipient: Email address that is invalid
+            reason: Reason why the recipient is invalid
+        """
+        message = f"Invalid recipient: {recipient}"
+        super().__init__(message, reason)
+
+
+class FolderOperationError(OfficeAutomationError):
+    """Raised when folder operations fail."""
+
+    def __init__(self, operation: str, folder_name: str, reason: str) -> None:
+        """Initialize folder operation error.
+
+        Args:
+            operation: Type of folder operation that failed
+            folder_name: Name of the folder
+            reason: Reason for failure
+        """
+        message = f"Folder operation '{operation}' failed for: {folder_name}"
+        super().__init__(message, reason)
+
+
+class AttachmentError(OfficeAutomationError):
+    """Raised when attachment operations fail."""
+
+    def __init__(self, operation: str, filename: str, reason: str) -> None:
+        """Initialize attachment error.
+
+        Args:
+            operation: Type of attachment operation that failed
+            filename: Name of the attachment file
+            reason: Reason for failure
+        """
+        message = f"Attachment operation '{operation}' failed for: {filename}"
+        super().__init__(message, reason)
+
+
+class CalendarOperationError(OfficeAutomationError):
+    """Raised when calendar operations fail."""
+
+    def __init__(self, operation: str, reason: str) -> None:
+        """Initialize calendar operation error.
+
+        Args:
+            operation: Type of calendar operation that failed
+            reason: Reason for failure
+        """
+        message = f"Calendar operation '{operation}' failed"
+        super().__init__(message, reason)
+
+
+class MeetingOperationError(OfficeAutomationError):
+    """Raised when meeting operations fail."""
+
+    def __init__(self, operation: str, reason: str) -> None:
+        """Initialize meeting operation error.
+
+        Args:
+            operation: Type of meeting operation that failed
+            reason: Reason for failure
+        """
+        message = f"Meeting operation '{operation}' failed"
+        super().__init__(message, reason)

@@ -99,7 +99,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
             pres.Save()
             message = "Presentation saved successfully"
 
-        return dict_to_result(success=True, message=message, file_path=str(file_path or pres.FullName))
+        return dict_to_result(
+            success=True, message=message, file_path=str(file_path or pres.FullName)
+        )
 
     @com_safe("close_presentation")
     def close_presentation(self, save_changes: bool = False) -> dict[str, Any]:
@@ -131,7 +133,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
             FixedFormatType=COMConstants.PP_SAVE_AS_PDF,
         )
 
-        return dict_to_result(success=True, message="Presentation exported to PDF", pdf_path=str(path))
+        return dict_to_result(
+            success=True, message="Presentation exported to PDF", pdf_path=str(path)
+        )
 
     @com_safe("save_as")
     def save_as(self, file_path: str, file_format: int | None = None) -> dict[str, Any]:
@@ -198,7 +202,6 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
     def create_custom_slide_master(self, master_name: str) -> dict[str, Any]:
         """Create custom slide master."""
         validate_string_not_empty("master_name", master_name)
-
 
         return dict_to_result(
             success=True,
@@ -330,10 +333,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
         # Find the content placeholder
         for shape in slide.Shapes:
-            if shape.Type == 14:  # msoPlaceholder
-                if shape.PlaceholderFormat.Type == 2:  # ppPlaceholderBody
-                    shape.TextFrame.TextRange.Text = body_text
-                    return dict_to_result(success=True, message="Body text updated")
+            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
+                shape.TextFrame.TextRange.Text = body_text
+                return dict_to_result(success=True, message="Body text updated")
 
         return dict_to_result(success=False, message="No body placeholder found")
 
@@ -345,19 +347,18 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
         # Find content placeholder
         for shape in slide.Shapes:
-            if shape.Type == 14:  # msoPlaceholder
-                if shape.PlaceholderFormat.Type == 2:  # ppPlaceholderBody
-                    text_frame = shape.TextFrame.TextRange
-                    text_frame.Text = "\n".join(bullet_points)
+            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
+                text_frame = shape.TextFrame.TextRange
+                text_frame.Text = "\n".join(bullet_points)
 
-                    # Apply bullet formatting
-                    for para in text_frame.Paragraphs():
-                        para.ParagraphFormat.Bullet.Type = 1  # ppBulletNumbered or bullet
+                # Apply bullet formatting
+                for para in text_frame.Paragraphs():
+                    para.ParagraphFormat.Bullet.Type = 1  # ppBulletNumbered or bullet
 
-                    return dict_to_result(
-                        success=True,
-                        message=f"Added {len(bullet_points)} bullet points",
-                    )
+                return dict_to_result(
+                    success=True,
+                    message=f"Added {len(bullet_points)} bullet points",
+                )
 
         return dict_to_result(success=False, message="No content placeholder found")
 
@@ -368,7 +369,7 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         slide = pres.Slides(slide_index)
 
         for shape in slide.Shapes:
-            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:
+            if shape.Type == 14 and shape.PlaceholderFormat.Type == 2:  # msoPlaceholder and ppPlaceholderBody
                 text_frame = shape.TextFrame.TextRange
                 text_frame.Text = "\n".join(items)
 
@@ -618,7 +619,14 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
     @com_safe("insert_table")
     def insert_table(
-        self, slide_index: int, rows: int, cols: int, left: float, top: float, width: float, height: float
+        self,
+        slide_index: int,
+        rows: int,
+        cols: int,
+        left: float,
+        top: float,
+        width: float,
+        height: float,
     ) -> dict[str, Any]:
         """Insert table on slide."""
         if rows < 1 or cols < 1:
@@ -653,7 +661,13 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
 
     @com_safe("merge_table_cells")
     def merge_table_cells(
-        self, slide_index: int, table_index: int, start_row: int, start_col: int, end_row: int, end_col: int
+        self,
+        slide_index: int,
+        table_index: int,
+        start_row: int,
+        start_col: int,
+        end_row: int,
+        end_col: int,
     ) -> dict[str, Any]:
         """Merge table cells."""
         pres = self.current_document
@@ -661,9 +675,7 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         table = slide.Shapes(table_index).Table
 
         cell = table.Cell(start_row, start_col)
-        cell.Merge(
-            MergeTo=table.Cell(end_row, end_col)
-        )
+        cell.Merge(MergeTo=table.Cell(end_row, end_col))
 
         return dict_to_result(success=True, message="Cells merged")
 
@@ -682,11 +694,13 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Cell split")
 
     @com_safe("apply_table_style")
-    def apply_table_style(self, slide_index: int, table_index: int, style_id: str) -> dict[str, Any]:
+    def apply_table_style(
+        self, slide_index: int, table_index: int, style_id: str
+    ) -> dict[str, Any]:
         """Apply style to table."""
         pres = self.current_document
         slide = pres.Slides(slide_index)
-        slide.Shapes(table_index).Table
+        _ = slide.Shapes(table_index).Table  # noqa: B018, F841
 
         # Apply built-in table style
         # Style IDs vary, this is a placeholder
@@ -766,11 +780,13 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Excel chart linked")
 
     @com_safe("modify_chart_data")
-    def modify_chart_data(self, slide_index: int, chart_index: int, data: dict[str, Any]) -> dict[str, Any]:
+    def modify_chart_data(
+        self, slide_index: int, chart_index: int, data: dict[str, Any]
+    ) -> dict[str, Any]:
         """Modify chart data."""
         pres = self.current_document
         slide = pres.Slides(slide_index)
-        slide.Shapes(chart_index).Chart
+        _ = slide.Shapes(chart_index).Chart  # noqa: B018, F841
 
         # Access chart data workbook
 
@@ -884,7 +900,9 @@ class PowerPointService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message=f"Transition duration set to {duration}s")
 
     @com_safe("apply_transition_to_all")
-    def apply_transition_to_all(self, transition_type: int, duration: float = 1.0) -> dict[str, Any]:
+    def apply_transition_to_all(
+        self, transition_type: int, duration: float = 1.0
+    ) -> dict[str, Any]:
         """Apply transition to all slides."""
         pres = self.current_document
 

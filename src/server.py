@@ -1,463 +1,347 @@
-"""MCP Server for Office Automation.
+"""
+MCP Office Server - Complete Integration (295+ tools).
 
-This server exposes Word, Excel, and PowerPoint automation capabilities
-through the Model Context Protocol (MCP).
+PRODUCTION-READY server with ALL Office services integrated.
+
+Architecture:
+- Word: 59 tools
+- Excel: 82 tools
+- PowerPoint: 63 tools
+- Outlook: 67 tools
+Total: 271 tools
+
+Author: Pascal-Louis
+Version: 3.0.0 - Complete Integration
 """
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Callable, Dict, Optional
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
-from .excel.excel_service import ExcelService
-from .powerpoint.powerpoint_service import PowerPointService
-from .word.word_service import WordService
+from src.core.exceptions import (
+    COMInitializationError,
+    DocumentNotFoundError,
+    InvalidParameterError,
+)
+from src.excel.excel_service import ExcelService
+from src.outlook.outlook_service import OutlookService
+from src.powerpoint.powerpoint_service import PowerPointService
+from src.word.word_service import WordService
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Import des configurations d'outils
+from tools_configs import (
+    EXCEL_TOOLS_CONFIG,
+    OUTLOOK_TOOLS_CONFIG,
+    POWERPOINT_TOOLS_CONFIG,
+    WORD_TOOLS_CONFIG,
+)
 
-# Initialize services
-word_service: WordService | None = None
-excel_service: ExcelService | None = None
-powerpoint_service: PowerPointService | None = None
+# Configuration du logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger("mcp_office")
 
+# Initialisation du serveur MCP
+app = Server("mcp-office-server")
 
-def get_word_service() -> WordService:
-    """Get or create Word service instance."""
-    global word_service
-    if word_service is None:
-        word_service = WordService()
-        word_service.initialize()
-    return word_service
-
-
-def get_excel_service() -> ExcelService:
-    """Get or create Excel service instance."""
-    global excel_service
-    if excel_service is None:
-        excel_service = ExcelService()
-        excel_service.initialize()
-    return excel_service
-
-
-def get_powerpoint_service() -> PowerPointService:
-    """Get or create PowerPoint service instance."""
-    global powerpoint_service
-    if powerpoint_service is None:
-        powerpoint_service = PowerPointService()
-        powerpoint_service.initialize()
-    return powerpoint_service
+# Services Office
+word_service: Optional[WordService] = None
+excel_service: Optional[ExcelService] = None
+powerpoint_service: Optional[PowerPointService] = None
+outlook_service: Optional[OutlookService] = None
 
 
-# Create MCP server
-app = Server("office-automation")
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
 
 
-# ============================================================================
-# WORD TOOLS
-# ============================================================================
+def format_result(result: Dict[str, Any]) -> str:
+    """Formate un résultat pour l'affichage."""
+    if not result.get("success", False):
+        error_msg = result.get("error", "Unknown error")
+        return f"❌ Erreur: {error_msg}"
+
+    lines = ["✅ Opération réussie"]
+    for key, value in result.items():
+        if key not in ["success", "error"] and value is not None:
+            if isinstance(value, (list, dict)) and len(str(value)) > 200:
+                lines.append(f"  • {key}: [données volumineuses - {len(value)} éléments]")
+            else:
+                lines.append(f"  • {key}: {value}")
+
+    return "\n".join(lines)
+
+
+def validate_parameters(params: Dict[str, Any], required: list[str]) -> None:
+    """Valide la présence des paramètres requis."""
+    missing = [p for p in required if p not in params or params[p] is None]
+    if missing:
+        raise InvalidParameterError(f"Paramètres manquants: {', '.join(missing)}")
+
+
+def generate_tool(service_prefix: str, name: str, config: dict) -> Tool:
+    """Génère un outil MCP à partir de sa configuration."""
+    properties = {}
+
+    # Ajouter tous les paramètres (requis et optionnels)
+    for param in config.get("required", []) + config.get("optional", []):
+        properties[param] = {"type": "string"}  # Type par défaut
+
+    return Tool(
+        name=f"{service_prefix}_{name}",
+        description=config["desc"],
+        inputSchema={
+            "type": "object",
+            "properties": properties,
+            "required": config.get("required", []),
+        },
+    )
+
+
+def build_handlers(service: Any, service_config: Dict, service_prefix: str) -> Dict[str, Callable]:
+    """Construit le mapping des handlers de manière dynamique."""
+
+    def create_handler(method_name: str, config: dict):
+        """Crée un handler dynamique pour une méthode."""
+        method = getattr(service, method_name)
+
+        def handler(args: dict):
+            # Extraire tous les arguments (requis + optionnels)
+            kwargs = {}
+            for param in config.get("required", []) + config.get("optional", []):
+                if param in args:
+                    kwargs[param] = args[param]
+            return method(**kwargs)
+
+        return handler
+
+    # Générer tous les handlers automatiquement
+    handlers = {}
+    for method_name, config in service_config.items():
+        tool_name = f"{service_prefix}_{method_name}"
+        handlers[tool_name] = create_handler(method_name, config)
+
+    return handlers
+
+
+# =============================================================================
+# MCP SERVER HANDLERS
+# =============================================================================
+
 
 @app.list_tools()
 async def list_tools() -> list[Tool]:
-    """List all available tools."""
-    return [
-        # Word Document Management
-        Tool(
-            name="word_create_document",
-            description="Create a new Word document",
-            inputSchema={"type": "object", "properties": {}},
-        ),
-        Tool(
-            name="word_open_document",
-            description="Open an existing Word document",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-                "required": ["file_path"],
-            },
-        ),
-        Tool(
-            name="word_save_document",
-            description="Save the current Word document",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-            },
-        ),
-        Tool(
-            name="word_add_paragraph",
-            description="Add a paragraph to Word document",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "text": {"type": "string"},
-                    "style": {"type": "string"},
-                },
-                "required": ["text"],
-            },
-        ),
-        Tool(
-            name="word_export_to_pdf",
-            description="Export Word document to PDF",
-            inputSchema={
-                "type": "object",
-                "properties": {"output_path": {"type": "string"}},
-                "required": ["output_path"],
-            },
-        ),
-        Tool(
-            name="word_insert_table",
-            description="Insert a table in Word document",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "rows": {"type": "integer"},
-                    "cols": {"type": "integer"},
-                },
-                "required": ["rows", "cols"],
-            },
-        ),
-        Tool(
-            name="word_insert_image",
-            description="Insert an image in Word document",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "image_path": {"type": "string"},
-                    "width": {"type": "number"},
-                    "height": {"type": "number"},
-                },
-                "required": ["image_path"],
-            },
-        ),
-        # Excel Workbook Management
-        Tool(
-            name="excel_create_workbook",
-            description="Create a new Excel workbook",
-            inputSchema={"type": "object", "properties": {}},
-        ),
-        Tool(
-            name="excel_open_workbook",
-            description="Open an existing Excel workbook",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-                "required": ["file_path"],
-            },
-        ),
-        Tool(
-            name="excel_save_workbook",
-            description="Save the current Excel workbook",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-            },
-        ),
-        Tool(
-            name="excel_add_worksheet",
-            description="Add a new worksheet to Excel workbook",
-            inputSchema={
-                "type": "object",
-                "properties": {"name": {"type": "string"}},
-            },
-        ),
-        Tool(
-            name="excel_write_cell",
-            description="Write value to Excel cell",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "sheet_name": {"type": "string"},
-                    "cell": {"type": "string"},
-                    "value": {},
-                },
-                "required": ["sheet_name", "cell", "value"],
-            },
-        ),
-        Tool(
-            name="excel_read_cell",
-            description="Read value from Excel cell",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "sheet_name": {"type": "string"},
-                    "cell": {"type": "string"},
-                },
-                "required": ["sheet_name", "cell"],
-            },
-        ),
-        Tool(
-            name="excel_write_formula",
-            description="Write formula to Excel cell",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "sheet_name": {"type": "string"},
-                    "cell": {"type": "string"},
-                    "formula": {"type": "string"},
-                },
-                "required": ["sheet_name", "cell", "formula"],
-            },
-        ),
-        Tool(
-            name="excel_create_chart",
-            description="Create a chart in Excel",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "sheet_name": {"type": "string"},
-                    "chart_type": {"type": "string"},
-                    "source_range": {"type": "string"},
-                    "chart_title": {"type": "string"},
-                },
-                "required": ["sheet_name", "chart_type", "source_range"],
-            },
-        ),
-        Tool(
-            name="excel_export_to_pdf",
-            description="Export Excel workbook to PDF",
-            inputSchema={
-                "type": "object",
-                "properties": {"output_path": {"type": "string"}},
-                "required": ["output_path"],
-            },
-        ),
-        # PowerPoint Presentation Management
-        Tool(
-            name="powerpoint_create_presentation",
-            description="Create a new PowerPoint presentation",
-            inputSchema={"type": "object", "properties": {}},
-        ),
-        Tool(
-            name="powerpoint_open_presentation",
-            description="Open an existing PowerPoint presentation",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-                "required": ["file_path"],
-            },
-        ),
-        Tool(
-            name="powerpoint_save_presentation",
-            description="Save the current PowerPoint presentation",
-            inputSchema={
-                "type": "object",
-                "properties": {"file_path": {"type": "string"}},
-            },
-        ),
-        Tool(
-            name="powerpoint_add_slide",
-            description="Add a new slide to PowerPoint presentation",
-            inputSchema={
-                "type": "object",
-                "properties": {"layout": {"type": "integer"}},
-            },
-        ),
-        Tool(
-            name="powerpoint_modify_title",
-            description="Modify slide title in PowerPoint",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "slide_index": {"type": "integer"},
-                    "title_text": {"type": "string"},
-                },
-                "required": ["slide_index", "title_text"],
-            },
-        ),
-        Tool(
-            name="powerpoint_insert_image",
-            description="Insert an image in PowerPoint slide",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "slide_index": {"type": "integer"},
-                    "image_path": {"type": "string"},
-                    "left": {"type": "number"},
-                    "top": {"type": "number"},
-                    "width": {"type": "number"},
-                    "height": {"type": "number"},
-                },
-                "required": ["slide_index", "image_path", "left", "top"],
-            },
-        ),
-        Tool(
-            name="powerpoint_export_to_pdf",
-            description="Export PowerPoint presentation to PDF",
-            inputSchema={
-                "type": "object",
-                "properties": {"output_path": {"type": "string"}},
-                "required": ["output_path"],
-            },
-        ),
-    ]
+    """Liste tous les outils disponibles (271 outils)."""
+    tools = []
+
+    # Générer les outils Word
+    for method_name, config in WORD_TOOLS_CONFIG.items():
+        tools.append(generate_tool("word", method_name, config))
+
+    # Générer les outils Excel
+    for method_name, config in EXCEL_TOOLS_CONFIG.items():
+        tools.append(generate_tool("excel", method_name, config))
+
+    # Générer les outils PowerPoint
+    for method_name, config in POWERPOINT_TOOLS_CONFIG.items():
+        tools.append(generate_tool("powerpoint", method_name, config))
+
+    # Générer les outils Outlook
+    for method_name, config in OUTLOOK_TOOLS_CONFIG.items():
+        tools.append(generate_tool("outlook", method_name, config))
+
+    logger.info(f"Loaded {len(tools)} tools total")
+    logger.info(f"  - Word: {len(WORD_TOOLS_CONFIG)} tools")
+    logger.info(f"  - Excel: {len(EXCEL_TOOLS_CONFIG)} tools")
+    logger.info(f"  - PowerPoint: {len(POWERPOINT_TOOLS_CONFIG)} tools")
+    logger.info(f"  - Outlook: {len(OUTLOOK_TOOLS_CONFIG)} tools")
+
+    return tools
+
+
+def route_to_service(service_prefix: str, service_instance, config, name: str, arguments: dict):
+    """Route une requête vers un service spécifique."""
+    if service_instance is None:
+        raise COMInitializationError(f"{service_prefix.capitalize()} service not initialized")
+    
+    handlers = build_handlers(service_instance, config, service_prefix)
+    if name in handlers:
+        return handlers[name](arguments)
+    else:
+        raise NotImplementedError(f"Outil {service_prefix} non implémenté: {name}")
+
+
+def handle_tool_error(name: str, error: Exception) -> list[TextContent]:
+    """Gère les erreurs d'exécution d'outils."""
+    error_messages = {
+        NotImplementedError: f"Outil non implémenté: {str(error)}",
+        InvalidParameterError: f"Paramètres invalides: {str(error)}",
+        DocumentNotFoundError: f"Document non trouvé: {str(error)}",
+        COMInitializationError: f"Erreur d'initialisation: {str(error)}"
+    }
+    
+    error_type = type(error)
+    if error_type in error_messages:
+        logger.error(f"Error calling tool {name}: {error}")
+        return [TextContent(type="text", text=f"❌ {error_messages[error_type]}")]
+    else:
+        logger.exception(f"Unexpected error calling tool {name}")
+        return [TextContent(type="text", text=f"❌ Erreur inattendue: {str(error)}")]
+
+
+def get_service_prefix(name: str) -> Optional[str]:
+    """Identifie le préfixe de service à partir du nom de l'outil."""
+    service_mapping = {
+        "word": (word_service, WORD_TOOLS_CONFIG, "word"),
+        "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
+        "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
+        "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+    }
+    
+    for prefix in service_mapping.keys():
+        if name.startswith(f"{prefix}_"):
+            return prefix
+    return None
 
 
 @app.call_tool()
-async def call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
-    """Handle tool calls."""
+async def call_tool(name: str, arguments: Any) -> list[TextContent]:
+    """Exécute un outil MCP avec routing automatique."""
+    logger.info(f"Calling tool: {name}")
+
     try:
-        # Word tools
-        if name == "word_create_document":
-            service = get_word_service()
-            result = service.create_document()
-            return [TextContent(type="text", text=str(result))]
+        # Convertir arguments en dictionnaire
+        if not isinstance(arguments, dict):
+            arguments = {}
 
-        if name == "word_open_document":
-            service = get_word_service()
-            result = service.open_document(arguments["file_path"])
-            return [TextContent(type="text", text=str(result))]
+        # Identifier le service cible
+        service_prefix = get_service_prefix(name)
+        if not service_prefix:
+            return [TextContent(type="text", text=f"❌ Outil inconnu: {name}")]
 
-        if name == "word_save_document":
-            service = get_word_service()
-            result = service.save_document(arguments.get("file_path"))
-            return [TextContent(type="text", text=str(result))]
+        # Mapping des services
+        service_mapping = {
+            "word": (word_service, WORD_TOOLS_CONFIG, "word"),
+            "excel": (excel_service, EXCEL_TOOLS_CONFIG, "excel"),
+            "powerpoint": (powerpoint_service, POWERPOINT_TOOLS_CONFIG, "powerpoint"),
+            "outlook": (outlook_service, OUTLOOK_TOOLS_CONFIG, "outlook")
+        }
 
-        if name == "word_add_paragraph":
-            service = get_word_service()
-            result = service.add_paragraph(
-                arguments["text"], arguments.get("style")
-            )
-            return [TextContent(type="text", text=str(result))]
+        service_instance, config, _ = service_mapping[service_prefix]
+        result = route_to_service(service_prefix, service_instance, config, name, arguments)
 
-        if name == "word_export_to_pdf":
-            service = get_word_service()
-            result = service.export_to_pdf(arguments["output_path"])
-            return [TextContent(type="text", text=str(result))]
+        # Formater et retourner le résultat
+        if result is None:
+            return [TextContent(type="text", text="❌ Aucun résultat retourné")]
 
-        if name == "word_insert_table":
-            service = get_word_service()
-            result = service.insert_table(arguments["rows"], arguments["cols"])
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "word_insert_image":
-            service = get_word_service()
-            result = service.insert_image(
-                arguments["image_path"],
-                arguments.get("width"),
-                arguments.get("height"),
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        # Excel tools
-        if name == "excel_create_workbook":
-            service = get_excel_service()
-            result = service.create_workbook()
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_open_workbook":
-            service = get_excel_service()
-            result = service.open_workbook(arguments["file_path"])
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_save_workbook":
-            service = get_excel_service()
-            result = service.save_workbook(arguments.get("file_path"))
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_add_worksheet":
-            service = get_excel_service()
-            result = service.add_worksheet(arguments.get("name"))
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_write_cell":
-            service = get_excel_service()
-            result = service.write_cell(
-                arguments["sheet_name"], arguments["cell"], arguments["value"]
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_read_cell":
-            service = get_excel_service()
-            result = service.read_cell(arguments["sheet_name"], arguments["cell"])
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_write_formula":
-            service = get_excel_service()
-            result = service.write_formula(
-                arguments["sheet_name"], arguments["cell"], arguments["formula"]
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_create_chart":
-            service = get_excel_service()
-            result = service.create_chart(
-                arguments["sheet_name"],
-                arguments["chart_type"],
-                arguments["source_range"],
-                arguments.get("chart_title"),
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "excel_export_to_pdf":
-            service = get_excel_service()
-            result = service.export_to_pdf(arguments["output_path"])
-            return [TextContent(type="text", text=str(result))]
-
-        # PowerPoint tools
-        if name == "powerpoint_create_presentation":
-            service = get_powerpoint_service()
-            result = service.create_presentation()
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_open_presentation":
-            service = get_powerpoint_service()
-            result = service.open_presentation(arguments["file_path"])
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_save_presentation":
-            service = get_powerpoint_service()
-            result = service.save_presentation(arguments.get("file_path"))
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_add_slide":
-            service = get_powerpoint_service()
-            result = service.add_slide(arguments.get("layout", 2))
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_modify_title":
-            service = get_powerpoint_service()
-            result = service.modify_title(
-                arguments["slide_index"], arguments["title_text"]
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_insert_image":
-            service = get_powerpoint_service()
-            result = service.insert_image(
-                arguments["slide_index"],
-                arguments["image_path"],
-                arguments["left"],
-                arguments["top"],
-                arguments.get("width"),
-                arguments.get("height"),
-            )
-            return [TextContent(type="text", text=str(result))]
-
-        if name == "powerpoint_export_to_pdf":
-            service = get_powerpoint_service()
-            result = service.export_to_pdf(arguments["output_path"])
-            return [TextContent(type="text", text=str(result))]
-
-        return [TextContent(type="text", text=f"Unknown tool: {name}")]
+        formatted = format_result(result)
+        return [TextContent(type="text", text=formatted)]
 
     except Exception as e:
-        logger.error(f"Error calling tool {name}: {e}", exc_info=True)
-        return [TextContent(type="text", text=f"Error: {e!s}")]
+        return handle_tool_error(name, e)
 
 
-async def main() -> None:
-    """Run the MCP server."""
-    async with stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            app.create_initialization_options(),
+# =============================================================================
+# LIFECYCLE MANAGEMENT
+# =============================================================================
+
+
+async def initialize_services():
+    """Initialise tous les services Office."""
+    global word_service, excel_service, powerpoint_service, outlook_service
+
+    logger.info("Initializing Office services...")
+
+    try:
+        # Initialiser Word
+        word_service = WordService()
+        word_service.initialize()
+        logger.info(f"✅ Word service initialized ({len(WORD_TOOLS_CONFIG)} tools)")
+
+        # Initialiser Excel
+        excel_service = ExcelService()
+        excel_service.initialize()
+        logger.info(f"✅ Excel service initialized ({len(EXCEL_TOOLS_CONFIG)} tools)")
+
+        # Initialiser PowerPoint
+        powerpoint_service = PowerPointService()
+        powerpoint_service.initialize()
+        logger.info(f"✅ PowerPoint service initialized ({len(POWERPOINT_TOOLS_CONFIG)} tools)")
+
+        # Initialiser Outlook
+        outlook_service = OutlookService()
+        outlook_service.initialize()
+        logger.info(f"✅ Outlook service initialized ({len(OUTLOOK_TOOLS_CONFIG)} tools)")
+
+        total_tools = (
+            len(WORD_TOOLS_CONFIG)
+            + len(EXCEL_TOOLS_CONFIG)
+            + len(POWERPOINT_TOOLS_CONFIG)
+            + len(OUTLOOK_TOOLS_CONFIG)
         )
+
+        logger.info("🚀 All Office services ready!")
+        logger.info(f"📊 Total tools available: {total_tools}")
+
+    except Exception as e:
+        logger.error(f"Failed to initialize services: {e}")
+        raise
+
+
+async def cleanup_services():
+    """Nettoie tous les services Office."""
+    logger.info("Cleaning up Office services...")
+
+    try:
+        if word_service:
+            word_service.cleanup()
+        if excel_service:
+            excel_service.cleanup()
+        if powerpoint_service:
+            powerpoint_service.cleanup()
+        if outlook_service:
+            outlook_service.cleanup()
+
+        logger.info("✅ All services cleaned up")
+    except Exception as e:
+        logger.error(f"Error during cleanup: {e}")
+
+
+async def main():
+    """Point d'entrée principal du serveur MCP."""
+    logger.info("Starting MCP Office Server...")
+    logger.info("=" * 80)
+    logger.info("MCP Office - Complete Office Automation Server")
+    logger.info("=" * 80)
+
+    try:
+        # Initialiser les services
+        await initialize_services()
+
+        # Démarrer le serveur MCP
+        async with stdio_server() as (read_stream, write_stream):
+            await app.run(
+                read_stream,
+                write_stream,
+                app.create_initialization_options(),
+            )
+
+    except KeyboardInterrupt:
+        logger.info("Server interrupted by user")
+    except Exception:
+        logger.exception("Fatal error in server")
+        raise
+    finally:
+        # Nettoyer les services
+        await cleanup_services()
+        logger.info("Server stopped")
 
 
 if __name__ == "__main__":

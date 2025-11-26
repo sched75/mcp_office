@@ -189,7 +189,7 @@ class TestSlideLayout:
 
     def test_has_common_layouts(self) -> None:
         """Test enum has common slide layouts."""
-        layouts = [layout for layout in SlideLayout]
+        layouts = list(SlideLayout)
         assert SlideLayout.TITLE_SLIDE in layouts
         assert SlideLayout.TITLE_AND_CONTENT in layouts
         assert SlideLayout.BLANK in layouts

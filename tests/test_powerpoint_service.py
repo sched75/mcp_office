@@ -64,7 +64,9 @@ class TestPresentationCreation:
         assert result["success"] is True
         ppt_service.application.Presentations.Add.assert_called_once()
 
-    def test_open_presentation(self, ppt_service: PowerPointService, sample_pptx_path: Path) -> None:
+    def test_open_presentation(
+        self, ppt_service: PowerPointService, sample_pptx_path: Path
+    ) -> None:
         """Test opening an existing PowerPoint presentation."""
         sample_pptx_path.touch()
         mock_pres = MagicMock()

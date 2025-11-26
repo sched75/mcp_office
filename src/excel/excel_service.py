@@ -105,7 +105,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
             wb.Save()
             message = "Workbook saved successfully"
 
-        return dict_to_result(success=True, message=message, file_path=str(file_path or wb.FullName))
+        return dict_to_result(
+            success=True, message=message, file_path=str(file_path or wb.FullName)
+        )
 
     @com_safe("close_workbook")
     def close_workbook(self, save_changes: bool = False) -> dict[str, Any]:
@@ -255,7 +257,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         if new_name:
             new_sheet.Name = new_name
 
-        return dict_to_result(success=True, message="Worksheet copied", new_sheet_name=new_sheet.Name)
+        return dict_to_result(
+            success=True, message="Worksheet copied", new_sheet_name=new_sheet.Name
+        )
 
     @com_safe("move_worksheet")
     def move_worksheet(self, sheet_name: str, position: int) -> dict[str, Any]:
@@ -306,7 +310,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message=f"Cell {cell_addr} updated", cell=cell_addr)
 
     @com_safe("write_range")
-    def write_range(self, sheet_name: str, range_addr: str, values: list[list[Any]]) -> dict[str, Any]:
+    def write_range(
+        self, sheet_name: str, range_addr: str, values: list[list[Any]]
+    ) -> dict[str, Any]:
         """Write values to a range."""
         validate_string_not_empty("sheet_name", sheet_name)
         range_address = validate_range_address(range_addr)
@@ -327,7 +333,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         ws = wb.Worksheets(sheet_name)
         value = ws.Range(cell_addr).Value
 
-        return dict_to_result(success=True, message="Cell value retrieved", cell=cell_addr, value=value)
+        return dict_to_result(
+            success=True, message="Cell value retrieved", cell=cell_addr, value=value
+        )
 
     @com_safe("read_range")
     def read_range(self, sheet_name: str, range_addr: str) -> dict[str, Any]:
@@ -449,14 +457,13 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         if absolute and "$" not in formula:
             # Simple conversion - add $ before letters and numbers
             import re
+
             formula = re.sub(r"([A-Z])([0-9])", r"$\1$\2", formula)
 
         return self.write_formula(sheet_name, cell_addr, formula)
 
     @com_safe("use_array_formula")
-    def use_array_formula(
-        self, sheet_name: str, range_addr: str, formula: str
-    ) -> dict[str, Any]:
+    def use_array_formula(self, sheet_name: str, range_addr: str, formula: str) -> dict[str, Any]:
         """Apply array formula."""
         validate_string_not_empty("sheet_name", sheet_name)
         range_address = validate_range_address(range_addr)
@@ -657,7 +664,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Total row added")
 
     @com_safe("apply_table_style")
-    def apply_table_style(self, sheet_name: str, table_name: str, style_name: str) -> dict[str, Any]:
+    def apply_table_style(
+        self, sheet_name: str, table_name: str, style_name: str
+    ) -> dict[str, Any]:
         """Apply style to table."""
         validate_string_not_empty("sheet_name", sheet_name)
         validate_string_not_empty("table_name", table_name)
@@ -698,9 +707,7 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
 
         sort_order = 1 if ascending else 2  # xlAscending : xlDescending
         table.Sort.SortFields.Clear()
-        table.Sort.SortFields.Add(
-            Key=table.ListColumns(column).Range, SortOn=0, Order=sort_order
-        )
+        table.Sort.SortFields.Add(Key=table.ListColumns(column).Range, SortOn=0, Order=sort_order)
         table.Sort.Apply()
 
         return dict_to_result(success=True, message="Table sorted")
@@ -711,7 +718,12 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
 
     @com_safe("insert_image")
     def insert_image(
-        self, sheet_name: str, image_path: str, cell: str, width: float | None = None, height: float | None = None
+        self,
+        sheet_name: str,
+        image_path: str,
+        cell: str,
+        width: float | None = None,
+        height: float | None = None,
     ) -> dict[str, Any]:
         """Insert image in worksheet."""
         validate_string_not_empty("sheet_name", sheet_name)
@@ -740,7 +752,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Image inserted")
 
     @com_safe("resize_image")
-    def resize_image(self, sheet_name: str, image_index: int, width: float, height: float) -> dict[str, Any]:
+    def resize_image(
+        self, sheet_name: str, image_index: int, width: float, height: float
+    ) -> dict[str, Any]:
         """Resize image."""
         validate_string_not_empty("sheet_name", sheet_name)
 
@@ -754,7 +768,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Image resized")
 
     @com_safe("position_image")
-    def position_image(self, sheet_name: str, image_index: int, left: float, top: float) -> dict[str, Any]:
+    def position_image(
+        self, sheet_name: str, image_index: int, left: float, top: float
+    ) -> dict[str, Any]:
         """Position image."""
         validate_string_not_empty("sheet_name", sheet_name)
 
@@ -838,7 +854,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Chart created", chart_type=chart_type)
 
     @com_safe("modify_chart_data")
-    def modify_chart_data(self, sheet_name: str, chart_index: int, new_range: str) -> dict[str, Any]:
+    def modify_chart_data(
+        self, sheet_name: str, chart_index: int, new_range: str
+    ) -> dict[str, Any]:
         """Modify chart data source."""
         validate_string_not_empty("sheet_name", sheet_name)
         range_address = validate_range_address(new_range)
@@ -852,7 +870,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Chart data updated")
 
     @com_safe("customize_chart_title")
-    def customize_chart_title(self, sheet_name: str, chart_index: int, title: str) -> dict[str, Any]:
+    def customize_chart_title(
+        self, sheet_name: str, chart_index: int, title: str
+    ) -> dict[str, Any]:
         """Customize chart title."""
         validate_string_not_empty("sheet_name", sheet_name)
         validate_string_not_empty("title", title)
@@ -884,7 +904,11 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
 
     @com_safe("modify_chart_axes")
     def modify_chart_axes(
-        self, sheet_name: str, chart_index: int, x_title: str | None = None, y_title: str | None = None
+        self,
+        sheet_name: str,
+        chart_index: int,
+        x_title: str | None = None,
+        y_title: str | None = None,
     ) -> dict[str, Any]:
         """Modify chart axes."""
         validate_string_not_empty("sheet_name", sheet_name)
@@ -904,7 +928,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Chart axes modified")
 
     @com_safe("change_chart_colors")
-    def change_chart_colors(self, sheet_name: str, chart_index: int, color_scheme: int) -> dict[str, Any]:
+    def change_chart_colors(
+        self, sheet_name: str, chart_index: int, color_scheme: int
+    ) -> dict[str, Any]:
         """Change chart colors and style."""
         validate_string_not_empty("sheet_name", sheet_name)
 
@@ -967,12 +993,11 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         dest_ws = wb.Worksheets(dest_sheet)
 
         cache = wb.PivotCaches().Create(
-            SourceType=1, SourceData=source_ws.Range(range_address)  # xlDatabase
+            SourceType=1,
+            SourceData=source_ws.Range(range_address),  # xlDatabase
         )
 
-        cache.CreatePivotTable(
-            TableDestination=dest_ws.Range(dest_cell_addr), TableName=table_name
-        )
+        cache.CreatePivotTable(TableDestination=dest_ws.Range(dest_cell_addr), TableName=table_name)
 
         return dict_to_result(success=True, message="Pivot table created", table_name=table_name)
 
@@ -1058,7 +1083,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
     # ========================================================================
 
     @com_safe("sort_ascending")
-    def sort_ascending(self, sheet_name: str, range_addr: str, key_column: int = 1) -> dict[str, Any]:
+    def sort_ascending(
+        self, sheet_name: str, range_addr: str, key_column: int = 1
+    ) -> dict[str, Any]:
         """Sort range in ascending order."""
         validate_string_not_empty("sheet_name", sheet_name)
         range_address = validate_range_address(range_addr)
@@ -1072,7 +1099,9 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         return dict_to_result(success=True, message="Sorted in ascending order")
 
     @com_safe("sort_descending")
-    def sort_descending(self, sheet_name: str, range_addr: str, key_column: int = 1) -> dict[str, Any]:
+    def sort_descending(
+        self, sheet_name: str, range_addr: str, key_column: int = 1
+    ) -> dict[str, Any]:
         """Sort range in descending order."""
         validate_string_not_empty("sheet_name", sheet_name)
         range_address = validate_range_address(range_addr)
@@ -1237,9 +1266,7 @@ class ExcelService(BaseOfficeService, DocumentOperationMixin):
         ws = wb.Worksheets(sheet_name)
         cell_range = ws.Range(range_address)
 
-        cell_range.Validation.Add(
-            Type=validation_type, Formula1=formula1, Formula2=formula2
-        )
+        cell_range.Validation.Add(Type=validation_type, Formula1=formula1, Formula2=formula2)
 
         return dict_to_result(success=True, message="Validation rules set")
 

@@ -2,7 +2,7 @@
 
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -220,7 +220,9 @@ class TestTableOperations:
 class TestImageOperations:
     """Tests for image operations."""
 
-    def test_insert_image(self, word_service_with_doc: WordService, sample_image_path: Path) -> None:
+    def test_insert_image(
+        self, word_service_with_doc: WordService, sample_image_path: Path
+    ) -> None:
         """Test inserting an image."""
         mock_shapes = MagicMock()
         mock_range = MagicMock()
@@ -324,8 +326,7 @@ class TestDocumentProperties:
         word_service_with_doc.current_document.BuiltInDocumentProperties = mock_props
 
         result = word_service_with_doc.set_document_properties(
-            title="Test Title",
-            author="Test Author"
+            title="Test Title", author="Test Author"
         )
 
         assert result["success"] is True

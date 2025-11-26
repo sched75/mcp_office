@@ -1,11 +1,18 @@
-# Core dependencies
-pywin32>=306
-mcp>=0.1.0
+# MCP Office - Requirements
 
-# Development dependencies
-ruff>=0.1.0
-radon>=6.0.0
-pytest>=7.0.0
-pytest-cov>=4.0.0
-pytest-asyncio>=0.21.0
-pytest-mock>=3.11.0
+# Core dependencies
+pywin32==306
+pythoncom
+
+# MCP Server
+mcp>=1.0.0
+
+# Code quality
+ruff==0.8.5
+radon==6.0.1
+
+# Testing
+pytest==8.3.5
+pytest-cov==6.0.0
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
