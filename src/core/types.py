@@ -230,11 +230,17 @@ class RecurrenceType(Enum):
 
 
 # Literal types for specific parameters
-WdUnderlineStyle: TypeAlias = Literal[
-    "none", "single", "double", "dotted", "dashed", "wave"
-]
+WdUnderlineStyle: TypeAlias = Literal["none", "single", "double", "dotted", "dashed", "wave"]
 NumberFormat: TypeAlias = Literal[
-    "general", "number", "currency", "accounting", "date", "time", "percentage",
-    "fraction", "scientific", "text"
+    "general",
+    "number",
+    "currency",
+    "accounting",
+    "date",
+    "time",
+    "percentage",
+    "fraction",
+    "scientific",
+    "text",
 ]
 EmailAddress: TypeAlias = str

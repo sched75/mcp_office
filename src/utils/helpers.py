@@ -62,9 +62,7 @@ def generate_timestamp_filename(base_name: str, extension: str) -> str:
     return f"{base_name}_{timestamp}{extension}"
 
 
-def dict_to_result(
-    success: bool = True, message: str = "", **kwargs: Any
-) -> dict[str, Any]:
+def dict_to_result(success: bool = True, message: str = "", **kwargs: Any) -> dict[str, Any]:
     """Create a standardized result dictionary.
 
     Args:

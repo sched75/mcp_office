@@ -169,9 +169,7 @@ class BaseOfficeService(ABC, Generic[TApp]):
             self._is_initialized = False
 
         if errors:
-            raise ResourceCleanupError(
-                self._app_type.value, "; ".join(errors)
-            )
+            raise ResourceCleanupError(self._app_type.value, "; ".join(errors))
 
     def _validate_file_path(self, file_path: str | Path) -> Path:
         """Validate and normalize a file path.
