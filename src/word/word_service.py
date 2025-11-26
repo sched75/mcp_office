@@ -250,7 +250,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         find_obj.Replacement.Text = replace_text
 
         count = 0
-        while find_obj.Execute(Replace=win_constants.wdReplaceOne):
+        while find_obj.Execute(Replace=2):  # wdReplaceOne
             count += 1
 
         return dict_to_result(
@@ -353,11 +353,11 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         doc = self.current_document
 
         if paragraph_index is not None:
-            doc.Paragraphs(paragraph_index).LineSpacingRule = win_constants.wdLineSpaceMultiple
+            doc.Paragraphs(paragraph_index).LineSpacingRule = 1  # wdLineSpaceMultiple
             doc.Paragraphs(paragraph_index).LineSpacing = spacing_value
         else:
             for para in doc.Paragraphs:
-                para.LineSpacingRule = win_constants.wdLineSpaceMultiple
+                para.LineSpacingRule = 1  # wdLineSpaceMultiple
                 para.LineSpacing = spacing_value
 
         return dict_to_result(success=True, message="Line spacing set", spacing=spacing_value)
@@ -392,7 +392,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
 
         doc = self.current_document
         table_range = doc.Content
-        table_range.Collapse(Direction=win_constants.wdCollapseEnd)
+        table_range.Collapse(Direction=0)  # wdCollapseEnd
 
         doc.Tables.Add(Range=table_range, NumRows=rows, NumColumns=cols)
 
@@ -477,7 +477,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         doc = self.current_document
 
         img_range = doc.Content
-        img_range.Collapse(Direction=win_constants.wdCollapseEnd)
+        img_range.Collapse(Direction=0)  # wdCollapseEnd
         shape = doc.InlineShapes.AddPicture(FileName=str(path), Range=img_range)
 
         if width:
@@ -579,7 +579,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         """Add header to document."""
         doc = self.current_document
         section = doc.Sections(section_index)
-        header = section.Headers(win_constants.wdHeaderFooterPrimary)
+        header = section.Headers(1)  # wdHeaderFooterPrimary
         header.Range.Text = text
 
         return dict_to_result(success=True, message="Header added")
@@ -589,7 +589,7 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         """Add footer to document."""
         doc = self.current_document
         section = doc.Sections(section_index)
-        footer = section.Footers(win_constants.wdHeaderFooterPrimary)
+        footer = section.Footers(1)  # wdHeaderFooterPrimary
         footer.Range.Text = text
 
         return dict_to_result(success=True, message="Footer added")
@@ -601,10 +601,10 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
         section = doc.Sections(1)
 
         if position.lower() == "bottom":
-            footer = section.Footers(win_constants.wdHeaderFooterPrimary)
+            footer = section.Footers(1)  # wdHeaderFooterPrimary
             footer.PageNumbers.Add()
         else:
-            header = section.Headers(win_constants.wdHeaderFooterPrimary)
+            header = section.Headers(1)  # wdHeaderFooterPrimary
             header.PageNumbers.Add()
 
         return dict_to_result(success=True, message="Page numbers inserted")
@@ -628,13 +628,13 @@ class WordService(BaseOfficeService, DocumentOperationMixin):
     def insert_page_break(self) -> dict[str, Any]:
         """Insert page break."""
         selection = self.application.Selection
-        selection.InsertBreak(Type=win_constants.wdPageBreak)
+        selection.InsertBreak(Type=7)  # wdPageBreak
 
         return dict_to_result(success=True, message="Page break inserted")
 
     @com_safe("insert_section_break")
     def insert_section_break(
-        self, break_type: int = win_constants.wdSectionBreakNextPage
+        self, break_type: int = 2  # wdSectionBreakNextPage
     ) -> dict[str, Any]:
         """Insert section break."""
         selection = self.application.Selection
