@@ -1942,3 +1942,342 @@ POWERPOINT_TOOLS_CONFIG = {
         "desc": "Compare two presentations."
     }
 }
+
+OUTLOOK_TOOLS_CONFIG = {
+    "send_email": {
+        "required": ["to", "subject", "body"],
+        "optional": ["cc", "bcc", "importance"],
+        "desc": "Envoie un email via Outlook"
+    },
+    "send_with_attachments": {
+        "required": ["to", "subject", "body", "attachments"],
+        "optional": ["cc", "bcc", "importance"],
+        "desc": "Envoie un email avec pièces jointes"
+    },
+    "read_email": {
+        "required": ["email_entry_id"],
+        "optional": [],
+        "desc": "Lit les détails d'un email"
+    },
+    "reply_to_email": {
+        "required": ["email_entry_id", "body"],
+        "optional": ["send_immediately"],
+        "desc": "Répond à un email"
+    },
+    "reply_all_to_email": {
+        "required": ["email_entry_id", "body"],
+        "optional": ["send_immediately"],
+        "desc": "Répond à tous les destinataires"
+    },
+    "forward_email": {
+        "required": ["email_entry_id", "to"],
+        "optional": ["body", "send_immediately"],
+        "desc": "Transfère un email"
+    },
+    "mark_as_read": {
+        "required": ["email_entry_id"],
+        "optional": [],
+        "desc": "Marque un email comme lu"
+    },
+    "mark_as_unread": {
+        "required": ["email_entry_id"],
+        "optional": [],
+        "desc": "Marque un email comme non lu"
+    },
+    "flag_email": {
+        "required": ["email_entry_id"],
+        "optional": ["flag_status"],
+        "desc": "Ajoute un drapeau sur un email"
+    },
+    "delete_email": {
+        "required": ["email_entry_id"],
+        "optional": [],
+        "desc": "Supprime un email"
+    },
+    "move_email_to_folder": {
+        "required": ["email_entry_id", "folder_path"],
+        "optional": [],
+        "desc": "Déplace un email vers un dossier"
+    },
+    "search_emails": {
+        "required": [],
+        "optional": ["folder_name", "subject", "sender", "body_contains", 
+                    "start_date", "end_date", "unread_only", "max_results"],
+        "desc": "Recherche des emails"
+    },
+    "add_attachment": {
+        "required": ["email_entry_id", "file_path"],
+        "optional": ["display_name"],
+        "desc": "Ajoute une pièce jointe"
+    },
+    "list_attachments": {
+        "required": ["email_entry_id"],
+        "optional": [],
+        "desc": "Liste les pièces jointes"
+    },
+    "save_attachment": {
+        "required": ["email_entry_id", "attachment_index", "save_path"],
+        "optional": [],
+        "desc": "Sauvegarde une pièce jointe"
+    },
+    "remove_attachment": {
+        "required": ["email_entry_id", "attachment_index"],
+        "optional": [],
+        "desc": "Supprime une pièce jointe"
+    },
+    "create_new_message": {
+        "required": [],
+        "optional": [],
+        "desc": "Crée un nouveau brouillon"
+    },
+    "create_folder": {
+        "required": ["folder_name"],
+        "optional": ["parent_folder"],
+        "desc": "Crée un dossier"
+    },
+    "delete_folder": {
+        "required": ["folder_path"],
+        "optional": [],
+        "desc": "Supprime un dossier"
+    },
+    "rename_folder": {
+        "required": ["folder_path", "new_name"],
+        "optional": [],
+        "desc": "Renomme un dossier"
+    },
+    "move_folder": {
+        "required": ["folder_path", "destination_path"],
+        "optional": [],
+        "desc": "Déplace un dossier"
+    },
+    "list_folders": {
+        "required": [],
+        "optional": ["parent_folder", "recursive"],
+        "desc": "Liste les dossiers"
+    },
+    "get_folder_item_count": {
+        "required": ["folder_path"],
+        "optional": [],
+        "desc": "Compte les éléments d'un dossier"
+    },
+    "get_unread_count": {
+        "required": [],
+        "optional": ["folder_path"],
+        "desc": "Compte les messages non lus"
+    },
+    "create_appointment": {
+        "required": ["subject", "start_time", "end_time"],
+        "optional": ["location", "body", "reminder_minutes", "busy_status"],
+        "desc": "Crée un rendez-vous"
+    },
+    "create_recurring_event": {
+        "required": ["subject", "start_time", "end_time", "recurrence_type"],
+        "optional": ["interval", "occurrences", "end_date", "location", "body"],
+        "desc": "Crée un événement récurrent"
+    },
+    "read_appointment": {
+        "required": ["appointment_entry_id"],
+        "optional": [],
+        "desc": "Lit un rendez-vous"
+    },
+    "modify_appointment": {
+        "required": ["appointment_entry_id"],
+        "optional": ["subject", "start_time", "end_time", "location", "body"],
+        "desc": "Modifie un rendez-vous"
+    },
+    "delete_appointment": {
+        "required": ["appointment_entry_id"],
+        "optional": [],
+        "desc": "Supprime un rendez-vous"
+    },
+    "search_appointments": {
+        "required": [],
+        "optional": ["subject", "location", "start_date", "end_date", "max_results"],
+        "desc": "Recherche des rendez-vous"
+    },
+    "get_appointments_by_date": {
+        "required": ["start_date", "end_date"],
+        "optional": [],
+        "desc": "Obtient les rendez-vous par date"
+    },
+    "set_reminder": {
+        "required": ["appointment_entry_id", "reminder_minutes"],
+        "optional": [],
+        "desc": "Définit un rappel"
+    },
+    "set_busy_status": {
+        "required": ["appointment_entry_id", "busy_status"],
+        "optional": [],
+        "desc": "Définit le statut occupé"
+    },
+    "export_appointment_ics": {
+        "required": ["appointment_entry_id", "output_path"],
+        "optional": [],
+        "desc": "Exporte en ICS"
+    },
+    "get_calendar_count": {
+        "required": [],
+        "optional": [],
+        "desc": "Compte les rendez-vous"
+    },
+    "export_to_pdf": {
+        "required": ["output_path"],
+        "optional": [],
+        "desc": "Exporte le calendrier en PDF"
+    },
+    "create_meeting_request": {
+        "required": ["subject", "start_time", "end_time", "required_attendees"],
+        "optional": ["optional_attendees", "location", "body"],
+        "desc": "Crée une demande de réunion"
+    },
+    "invite_participants": {
+        "required": ["meeting_entry_id", "attendees"],
+        "optional": ["required"],
+        "desc": "Invite des participants"
+    },
+    "accept_meeting": {
+        "required": ["meeting_entry_id"],
+        "optional": [],
+        "desc": "Accepte une réunion"
+    },
+    "decline_meeting": {
+        "required": ["meeting_entry_id"],
+        "optional": [],
+        "desc": "Refuse une réunion"
+    },
+    "propose_new_time": {
+        "required": ["meeting_entry_id", "new_start", "new_end"],
+        "optional": [],
+        "desc": "Propose un nouveau créneau"
+    },
+    "cancel_meeting": {
+        "required": ["meeting_entry_id"],
+        "optional": [],
+        "desc": "Annule une réunion"
+    },
+    "update_meeting": {
+        "required": ["meeting_entry_id"],
+        "optional": ["subject", "start_time", "end_time", "location"],
+        "desc": "Met à jour une réunion"
+    },
+    "check_availability": {
+        "required": ["attendees", "start_time", "end_time"],
+        "optional": ["duration_minutes"],
+        "desc": "Vérifie la disponibilité"
+    },
+    "create_contact": {
+        "required": ["first_name", "last_name"],
+        "optional": ["email", "phone", "company", "job_title"],
+        "desc": "Crée un contact"
+    },
+    "modify_contact": {
+        "required": ["contact_entry_id"],
+        "optional": ["first_name", "last_name", "email", "phone"],
+        "desc": "Modifie un contact"
+    },
+    "delete_contact": {
+        "required": ["contact_entry_id"],
+        "optional": [],
+        "desc": "Supprime un contact"
+    },
+    "search_contact": {
+        "required": ["search_term"],
+        "optional": [],
+        "desc": "Recherche un contact"
+    },
+    "list_all_contacts": {
+        "required": [],
+        "optional": [],
+        "desc": "Liste tous les contacts"
+    },
+    "create_contact_group": {
+        "required": ["group_name"],
+        "optional": [],
+        "desc": "Crée un groupe de contacts"
+    },
+    "add_to_contact_group": {
+        "required": ["group_entry_id", "contact_email"],
+        "optional": [],
+        "desc": "Ajoute à un groupe"
+    },
+    "export_contacts_vcf": {
+        "required": ["output_path"],
+        "optional": [],
+        "desc": "Exporte les contacts en VCF"
+    },
+    "import_contacts": {
+        "required": ["file_path"],
+        "optional": [],
+        "desc": "Importe des contacts"
+    },
+    "create_task": {
+        "required": ["subject"],
+        "optional": ["body", "due_date", "priority"],
+        "desc": "Crée une tâche"
+    },
+    "modify_task": {
+        "required": ["task_entry_id"],
+        "optional": ["subject", "body", "due_date"],
+        "desc": "Modifie une tâche"
+    },
+    "delete_task": {
+        "required": ["task_entry_id"],
+        "optional": [],
+        "desc": "Supprime une tâche"
+    },
+    "mark_task_complete": {
+        "required": ["task_entry_id"],
+        "optional": [],
+        "desc": "Marque une tâche terminée"
+    },
+    "set_task_priority": {
+        "required": ["task_entry_id", "priority"],
+        "optional": [],
+        "desc": "Définit la priorité"
+    },
+    "set_task_due_date": {
+        "required": ["task_entry_id", "due_date"],
+        "optional": [],
+        "desc": "Définit l'échéance"
+    },
+    "list_tasks": {
+        "required": [],
+        "optional": ["completed"],
+        "desc": "Liste les tâches"
+    },
+    "list_accounts": {
+        "required": [],
+        "optional": [],
+        "desc": "Liste les comptes"
+    },
+    "get_default_account": {
+        "required": [],
+        "optional": [],
+        "desc": "Obtient le compte par défaut"
+    },
+    "get_inbox_count": {
+        "required": [],
+        "optional": [],
+        "desc": "Compte les messages inbox"
+    },
+    "create_category": {
+        "required": ["name"],
+        "optional": ["color"],
+        "desc": "Crée une catégorie"
+    },
+    "list_categories": {
+        "required": [],
+        "optional": [],
+        "desc": "Liste les catégories"
+    },
+    "apply_category": {
+        "required": ["item_entry_id", "category"],
+        "optional": [],
+        "desc": "Applique une catégorie"
+    },
+    "com_operation": {
+        "required": ["operation_name"],
+        "optional": [],
+        "desc": "Opération COM personnalisée"
+    }
+}
