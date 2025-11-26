@@ -12,104 +12,137 @@ TOOLS_CONFIG = {
     "Word": {
         "count": 65,
         "categories": [
-            ("Gestion documents", 6, [
-                ("word_create_document", "Crée un nouveau document Word"),
-                ("word_open_document", "Ouvre un document existant"),
-                ("word_save_document", "Enregistre le document"),
-                ("word_close_document", "Ferme le document"),
-                ("word_save_as_template", "Sauvegarde comme modèle"),
-                ("word_print_to_pdf", "Exporte en PDF"),
-            ]),
-            ("Contenu textuel", 4, [
-                ("word_add_paragraph", "Ajoute un paragraphe"),
-                ("word_insert_text_at_position", "Insère du texte à une position"),
-                ("word_find_and_replace", "Recherche et remplace"),
-                ("word_delete_text", "Supprime du texte"),
-            ]),
+            (
+                "Gestion documents",
+                6,
+                [
+                    ("word_create_document", "Crée un nouveau document Word"),
+                    ("word_open_document", "Ouvre un document existant"),
+                    ("word_save_document", "Enregistre le document"),
+                    ("word_close_document", "Ferme le document"),
+                    ("word_save_as_template", "Sauvegarde comme modèle"),
+                    ("word_print_to_pdf", "Exporte en PDF"),
+                ],
+            ),
+            (
+                "Contenu textuel",
+                4,
+                [
+                    ("word_add_paragraph", "Ajoute un paragraphe"),
+                    ("word_insert_text_at_position", "Insère du texte à une position"),
+                    ("word_find_and_replace", "Recherche et remplace"),
+                    ("word_delete_text", "Supprime du texte"),
+                ],
+            ),
             # Autres catégories...
         ],
         "examples": [
             {
                 "title": "Créer un rapport Word complet",
                 "prompt": "Crée un document Word avec le titre 'Rapport Annuel 2024', ajoute un paragraphe d'introduction, insère un tableau 3x3, et sauvegarde-le",
-                "description": "Démonstration de création de document avec plusieurs éléments"
+                "description": "Démonstration de création de document avec plusieurs éléments",
             },
             {
                 "title": "Publipostage",
                 "prompt": "Crée un document Word et effectue un publipostage avec les données : Nom=['Alice', 'Bob'], Email=['alice@test.com', 'bob@test.com']",
-                "description": "Utilisation de la fonctionnalité mail merge"
+                "description": "Utilisation de la fonctionnalité mail merge",
             },
-        ]
+        ],
     },
     "Excel": {
         "count": 82,
         "categories": [
-            ("Gestion classeurs", 6, [
-                ("excel_create_workbook", "Crée un nouveau classeur"),
-                ("excel_write_cell", "Écrit dans une cellule"),
-                ("excel_create_chart", "Crée un graphique"),
-            ]),
+            (
+                "Gestion classeurs",
+                6,
+                [
+                    ("excel_create_workbook", "Crée un nouveau classeur"),
+                    ("excel_write_cell", "Écrit dans une cellule"),
+                    ("excel_create_chart", "Crée un graphique"),
+                ],
+            ),
         ],
         "examples": [
             {
                 "title": "Analyser des données et créer un graphique",
                 "prompt": "Crée un classeur Excel, écris des données de ventes dans A1:B10, calcule la somme en B11, puis crée un graphique en colonnes",
-                "description": "Workflow complet d'analyse de données"
+                "description": "Workflow complet d'analyse de données",
             },
-        ]
+        ],
     },
     "PowerPoint": {
         "count": 63,
         "categories": [
-            ("Gestion présentations", 6, [
-                ("powerpoint_create_presentation", "Crée une présentation"),
-                ("powerpoint_add_slide", "Ajoute une diapositive"),
-            ]),
+            (
+                "Gestion présentations",
+                6,
+                [
+                    ("powerpoint_create_presentation", "Crée une présentation"),
+                    ("powerpoint_add_slide", "Ajoute une diapositive"),
+                ],
+            ),
         ],
         "examples": [
             {
                 "title": "Créer une présentation de pitch",
                 "prompt": "Crée une présentation PowerPoint avec 5 diapositives : page de titre, problème, solution, marché, conclusion. Ajoute des images et animations",
-                "description": "Création de présentation professionnelle"
+                "description": "Création de présentation professionnelle",
             },
-        ]
+        ],
     },
     "Outlook": {
         "count": 85,
         "categories": [
-            ("Emails", 12, [
-                ("outlook_send_email", "Envoie un email"),
-                ("outlook_read_email", "Lit un email"),
-                ("outlook_reply_to_email", "Répond à un email"),
-                ("outlook_search_emails", "Recherche des emails"),
-            ]),
-            ("Calendrier", 10, [
-                ("outlook_create_appointment", "Crée un rendez-vous"),
-                ("outlook_create_recurring_event", "Crée un événement récurrent"),
-            ]),
-            ("Contacts", 9, [
-                ("outlook_create_contact", "Crée un contact"),
-                ("outlook_search_contact", "Recherche un contact"),
-            ]),
-            ("Tâches", 7, [
-                ("outlook_create_task", "Crée une tâche"),
-                ("outlook_mark_task_complete", "Marque comme terminée"),
-            ]),
+            (
+                "Emails",
+                12,
+                [
+                    ("outlook_send_email", "Envoie un email"),
+                    ("outlook_read_email", "Lit un email"),
+                    ("outlook_reply_to_email", "Répond à un email"),
+                    ("outlook_search_emails", "Recherche des emails"),
+                ],
+            ),
+            (
+                "Calendrier",
+                10,
+                [
+                    ("outlook_create_appointment", "Crée un rendez-vous"),
+                    ("outlook_create_recurring_event", "Crée un événement récurrent"),
+                ],
+            ),
+            (
+                "Contacts",
+                9,
+                [
+                    ("outlook_create_contact", "Crée un contact"),
+                    ("outlook_search_contact", "Recherche un contact"),
+                ],
+            ),
+            (
+                "Tâches",
+                7,
+                [
+                    ("outlook_create_task", "Crée une tâche"),
+                    ("outlook_mark_task_complete", "Marque comme terminée"),
+                ],
+            ),
         ],
         "examples": [
             {
                 "title": "Organiser une réunion",
                 "prompt": "Crée un rendez-vous Outlook pour demain à 10h, intitulé 'Réunion d'équipe', durée 1h, avec 5 participants, puis envoie les invitations",
-                "description": "Workflow complet de gestion de réunion"
+                "description": "Workflow complet de gestion de réunion",
             },
             {
                 "title": "Gérer sa boîte de réception",
                 "prompt": "Cherche tous les emails non lus de la semaine dernière concernant 'projet', crée un dossier 'Projet Important', déplace-les dedans",
-                "description": "Organisation automatique des emails"
+                "description": "Organisation automatique des emails",
             },
-        ]
+        ],
     },
 }
+
 
 def generate_user_guide():
     """Génère le guide utilisateur complet."""
@@ -160,11 +193,11 @@ Vous devriez recevoir :
 ---
 
 """
-    
+
     # Générer sections pour chaque application
     for app_name, app_config in TOOLS_CONFIG.items():
         content += f"## {app_name} ({app_config['count']} outils)\n\n"
-        
+
         # Description
         if app_name == "Word":
             content += "Microsoft Word - Traitement de texte et création de documents.\n\n"
@@ -174,7 +207,7 @@ Vous devriez recevoir :
             content += "Microsoft PowerPoint - Présentations et diaporamas.\n\n"
         elif app_name == "Outlook":
             content += "Microsoft Outlook - Emails, calendrier, contacts et tâches.\n\n"
-        
+
         # Catégories d'outils
         content += "### Catégories d'outils\n\n"
         for cat_name, cat_count, tools in app_config["categories"]:
@@ -182,15 +215,15 @@ Vous devriez recevoir :
             for tool_name, tool_desc in tools:
                 content += f"- **`{tool_name}`** : {tool_desc}\n"
             content += "\n"
-        
+
         # Exemples
         content += f"### Exemples {app_name}\n\n"
         for i, example in enumerate(app_config["examples"], 1):
             content += f"#### Exemple {i} : {example['title']}\n\n"
             content += f"{example['description']}\n\n"
-            content += "**Prompt** :\n```\n" + example['prompt'] + "\n```\n\n"
+            content += "**Prompt** :\n```\n" + example["prompt"] + "\n```\n\n"
             content += "---\n\n"
-    
+
     # Exemples avancés
     content += """## Exemples Avancés
 
@@ -320,8 +353,9 @@ Pour chaque fichier .docx dans le dossier "rapports":
 
 **Profitez de l'automation complète d'Office avec Claude ! 🚀**
 """
-    
+
     return content
+
 
 def generate_troubleshooting():
     """Génère le guide de dépannage."""
@@ -652,27 +686,28 @@ Si votre problème persiste :
 """
     return content
 
+
 def main():
     """Génère tous les fichiers de documentation."""
     print("=" * 70)
     print("GÉNÉRATION DE LA DOCUMENTATION")
     print("=" * 70)
     print()
-    
+
     # Générer user_guide.md
     print("Génération de user_guide.md...")
     user_guide = generate_user_guide()
     with open("docs/user_guide.md", "w", encoding="utf-8") as f:
         f.write(user_guide)
     print(f"✅ user_guide.md créé ({len(user_guide)} caractères)")
-    
+
     # Générer troubleshooting.md
     print("Génération de troubleshooting.md...")
     troubleshooting = generate_troubleshooting()
     with open("docs/troubleshooting.md", "w", encoding="utf-8") as f:
         f.write(troubleshooting)
     print(f"✅ troubleshooting.md créé ({len(troubleshooting)} caractères)")
-    
+
     print()
     print("=" * 70)
     print("✅ DOCUMENTATION GÉNÉRÉE AVEC SUCCÈS")
@@ -682,6 +717,7 @@ def main():
     print("  • docs/user_guide.md")
     print("  • docs/troubleshooting.md")
     print()
+
 
 if __name__ == "__main__":
     main()
