@@ -143,7 +143,8 @@ class MockFolders:
     """Mock folders collection."""
 
     def __init__(self):
-        self._folders = [MockFolder("SubFolder1"), MockFolder("SubFolder2")]
+        # Use simple folder names without creating nested MockFolders to avoid recursion
+        self._folders = ["SubFolder1", "SubFolder2"]
 
     def __call__(self, name):
         """Get folder by name."""
@@ -151,6 +152,7 @@ class MockFolders:
 
     def Add(self, name):
         """Add folder."""
+        self._folders.append(name)
         return MockFolder(name)
 
 
@@ -374,7 +376,9 @@ def outlook_service(monkeypatch):
 
     service = OutlookService()
     service.initialize()
-    service.application = mock_app
+    
+    # Use monkeypatch to set the internal _application attribute
+    monkeypatch.setattr(service, "_app", mock_app)
 
     yield service
 
